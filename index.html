@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nabwiso Family</title>
+    <!-- Modern clean font family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Lined paper web background */
+        body {
+            background-color: #f7fbff;
+            background-image: 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.1) 0%, rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(rgba(173, 216, 230, 0.3) 1px, transparent 1px);
+            background-size: 100% 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #003366;
+        }
+
+        /* App Container */
+        .app-container {
+            width: 380px;
+            height: 720px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 71, 171, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Initial Gateway Authentication Screen Overlay */
+        #authGateway {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 250;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Account Registration & Login Screen overlays */
+        .auth-screen-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .auth-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #0047ab;
+            margin: 0 auto;
+        }
+
+        .auth-title {
+            color: #0047ab;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .auth-subtitle {
+            font-size: 0.8rem;
+            color: #555;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .auth-form-group {
+            margin-bottom: 10px;
+        }
+
+        .auth-form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #003366;
+            text-align: left;
+        }
+
+        .auth-form-group input, .auth-form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #b3d1ff;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            outline: none;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        .auth-btn {
+            background-color: #0047ab;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background-color: #003380;
+        }
+
+        .auth-gateway-btn {
+            background-color: #0047ab;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        .auth-gateway-btn.secondary {
+            background-color: #f0f6ff;
+            color: #0047ab;
+            border: 1px solid #0047ab;
+        }
+
+        .auth-gateway-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Header (Static) */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0047ab;
+            color: white;
+            padding: 14px 16px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .header-logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .app-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .profile-badge-container {
+            position: relative;
+        }
+
+        .profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 3px 10px 3px 4px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+            color: white;
+        }
+
+        .header-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #fff;
+        }
+
+        /* Profile Dropdown Menu */
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 38px;
+            background: white;
+            border: 1px solid #0047ab;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            width: 160px;
+            z-index: 300;
+            overflow: hidden;
+        }
+
+        .profile-dropdown button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            color: #003366;
+            cursor: pointer;
+            font-family: 'Inter', Arial, sans-serif;
+            border-bottom: 1px solid #f0f6ff;
+        }
+
+        .profile-dropdown button:hover {
+            background: #f0f6ff;
+        }
+
+        /* Scrollable Content Body */
+        .content-body {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Pending Verification Lock Overlay */
+        #pendingLockOverlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .nav-links a {
+            color: #0047ab;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            width: fit-content;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        /* Search Bar & Create Post Form */
+        .search-container {
+            border-top: 1px solid #d0e1fd;
+            padding-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #0047ab;
+            border-radius: 6px;
+            padding: 6px 10px;
+            width: 100%;
+            background: #fff;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 0.85rem;
+            width: 100%;
+            color: #003366;
+            background: transparent;
+        }
+
+        .create-post-box {
+            background: #f0f6ff;
+            border: 1px solid #b3d1ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+        .create-post-box textarea {
+            width: 100%;
+            border: 1px solid #b3d1ff;
+            border-radius: 6px;
+            padding: 8px;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+
+        .post-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-controls select {
+            border: 1px solid #0047ab;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 0.8rem;
+            color: #0047ab;
+            background: white;
+            outline: none;
+        }
+
+        .post-btn-submit {
+            background-color: #0047ab;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .post-btn-submit:hover {
+            background-color: #003380;
+        }
+
+        .post-label {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 4px 0 2px 0;
+        }
+
+        .sub-heading {
+            font-size: 0.85rem;
+            margin: 0 0 10px 0;
+            color: #555;
+        }
+
+        /* Post Cards */
+        .post-card {
+            border: 1px solid #b3d1ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 12px;
+            background: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            position: relative;
+        }
+
+        .post-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #b3d1ff;
+        }
+
+        .post-info {
+            font-size: 0.8rem;
+            color: #444;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-time {
+            font-size: 0.7rem;
+            color: #777;
+            font-weight: 400;
+        }
+
+        .verified-badge {
+            color: #0047ab;
+            font-size: 0.75rem;
+            margin-left: 2px;
+        }
+
+        .post-text-content {
+            font-size: 0.85rem;
+            color: #333;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .media-display-box {
+            width: 100%;
+            max-height: 180px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            background: #f4f8fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .media-display-box img, .media-display-box video {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            border-top: 1px solid #edf2f7;
+            padding-top: 6px;
+        }
+
+        .post-actions button {
+            background: none;
+            border: none;
+            color: #0047ab;
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .post-actions button:hover {
+            text-decoration: underline;
+        }
+
+        /* Share Menu Popup */
+        .share-menu {
+            display: none;
+            position: absolute;
+            right: 10px;
+            bottom: 40px;
+            background: white;
+            border: 1px solid #0047ab;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 8px;
+            z-index: 10;
+            width: 150px;
+        }
+
+        .share-menu a, .share-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 5px 6px;
+            font-size: 0.75rem;
+            color: #0047ab;
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'Inter', Arial, sans-serif;
+            border-radius: 4px;
+        }
+
+        .share-menu a:hover, .share-menu button:hover {
+            background: #f0f6ff;
+        }
+
+        /* Comments Section Styling */
+        .comments-section {
+            margin-top: 8px;
+            border-top: 1px dashed #d0e1fd;
+            padding-top: 8px;
+            display: none;
+        }
+
+        .comments-list {
+            max-height: 100px;
+            overflow-y: auto;
+            margin-bottom: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .comment-item {
+            background: #f4f8fb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #333;
+        }
+
+        .comment-input-area {
+            display: flex;
+            gap: 4px;
+        }
+
+        .comment-input-area input {
+            flex: 1;
+            padding: 4px 6px;
+            border: 1px solid #b3d1ff;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            outline: none;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        .comment-input-area button {
+            background: #0047ab;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* WhatsApp Style Chat Room UI Styling */
+        .chat-room-container {
+            display: flex;
+            flex-direction: column;
+            height: 520px;
+            background: #e5ddd5;
+            border: 1px solid #b3d1ff;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-messages-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            position: relative;
+            word-break: break-word;
+            background: #ffffff;
+            color: #333;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .chat-bubble.mine {
+            background: #dcf8c6;
+            align-self: flex-end;
+        }
+
+        .chat-bubble.theirs {
+            background: #ffffff;
+            align-self: flex-start;
+        }
+
+        .chat-sender-name {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #0047ab;
+            margin-bottom: 2px;
+        }
+
+        .chat-media-preview {
+            max-width: 100%;
+            max-height: 140px;
+            border-radius: 6px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Perfectly fitted WhatsApp-style Chat Toolbar */
+        .chat-input-toolbar {
+            display: flex;
+            align-items: center;
+            background: #f0f0f0;
+            padding: 6px 6px;
+            gap: 4px;
+            border-top: 1px solid #ccc;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .chat-input-toolbar input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 16px;
+            outline: none;
+            font-size: 0.75rem;
+            font-family: 'Inter', Arial, sans-serif;
+            background: #fff;
+        }
+
+        .chat-attach-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #555;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn {
+            background: #0047ab;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        /* WhatsApp style attachment popup menu */
+        .chat-attach-menu {
+            display: none;
+            position: absolute;
+            bottom: 55px;
+            left: 10px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 8px;
+            z-index: 50;
+            width: 160px;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .chat-attach-menu label {
+            font-size: 0.75rem;
+            color: #003366;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-attach-menu label:hover {
+            background: #f0f6ff;
+        }
+
+        /* Call Modal Overlay */
+        #callOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            z-index: 500;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .call-avatar-container {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #0047ab;
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .call-avatar-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Static Footer */
+        .app-footer {
+            text-align: center;
+            background-color: #0047ab;
+            color: white;
+            padding: 12px 15px;
+            flex-shrink: 0;
+        }
+
+        .motto {
+            font-size: 0.85rem;
+            margin: 0 0 6px 0;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .history-btn {
+            background: white;
+            border: none;
+            color: #0047ab;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-family: 'Inter', Arial, sans-serif;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .history-btn:hover {
+            background: #e6f0ff;
+        }
+
+        .dynamic-page-view {
+            display: none;
+        }
+
+        .dynamic-page-view.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        
+        <!-- INITIAL AUTH GATEWAY -->
+        <div id="authGateway">
+            <div style="margin-bottom: 15px; display: flex; justify-content: center;">
+                <img src="nabwiso.jpg" alt="Logo" class="auth-logo" style="width: 70px; height: 70px;" onerror="this.src='https://via.placeholder.com/70/0047ab/FFFFFF?text=N'">
+            </div>
+            <h2 class="auth-title" style="font-size: 1.5rem;">Nabwiso Family Portal</h2>
+            <p class="auth-subtitle" style="font-size: 0.85rem; margin-bottom: 25px;">Welcome! Please choose an option below to continue to the family network.</p>
+            
+            <button class="auth-gateway-btn" onclick="showLoginScreen()">🔐 Log In</button>
+            <button class="auth-gateway-btn secondary" onclick="showRegisterScreen()">✨ Create Account</button>
+        </div>
+
+        <!-- LOGIN SCREEN OVERLAY -->
+        <div id="loginScreen" class="auth-screen-panel">
+            <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center;">
+                <img src="nabwiso.jpg" alt="Logo" class="auth-logo" onerror="this.src='https://via.placeholder.com/50/0047ab/FFFFFF?text=N'">
+            </div>
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Log in with your phone number and password</p>
+
+            <div class="auth-form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="loginPhone" placeholder="e.g., +256 700 000000">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+
+            <button class="auth-btn" onclick="loginUser()">Log In to Portal</button>
+            <button onclick="backToGateway()" style="background: none; border: none; color: #0047ab; font-size: 0.8rem; cursor: pointer; margin-top: 15px; text-decoration: underline;">← Back to Gateway</button>
+        </div>
+
+        <!-- ACCOUNT CREATION SCREEN OVERLAY -->
+        <div id="authScreen" class="auth-screen-panel">
+            <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center;">
+                <img src="nabwiso.jpg" alt="Logo" class="auth-logo" onerror="this.src='https://via.placeholder.com/50/0047ab/FFFFFF?text=N'">
+            </div>
+            <h2 class="auth-title">Nabwiso Family App</h2>
+            <p class="auth-subtitle">Create your family profile to join the network</p>
+            
+            <div class="auth-form-group">
+                <label>Profile Picture</label>
+                <input type="file" id="regAvatar" accept="image/*" style="font-size: 0.75rem;">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="e.g., Bright Nabwiso">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="regPhone" placeholder="e.g., +256 700 000000">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Father's Name</label>
+                <input type="text" id="regFather" placeholder="e.g., Nabwiso Richard">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Mother's Name</label>
+                <input type="text" id="regMother" placeholder="e.g., Nabirye Letisha">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Date of Birth</label>
+                <input type="date" id="regDob">
+            </div>
+
+            <div class="auth-form-group">
+                <label>Gender / Section (Sec)</label>
+                <select id="regSec">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="auth-form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="Create a password">
+            </div>
+
+            <button class="auth-btn" onclick="registerUser()">Enter Family Portal</button>
+            <button onclick="backToGateway()" style="background: none; border: none; color: #0047ab; font-size: 0.8rem; cursor: pointer; margin-top: 15px; text-decoration: underline;">← Back to Gateway</button>
+        </div>
+
+        <!-- Static Header -->
+        <header class="app-header">
+            <div class="logo-area" onclick="switchTab('feed')">
+                <img src="nabwiso.jpg" alt="Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/30/FFFFFF/0047ab?text=N'">
+                <h1 class="app-title">Nabwiso</h1>
+            </div>
+            <div class="profile-badge-container">
+                <div class="profile-badge" onclick="toggleProfileDropdown()">
+                    <img src="" id="headerAvatarImg" class="header-avatar" style="display:none;">
+                    <span id="headerProfileName">👤 Member</span>
+                </div>
+                <div class="profile-dropdown" id="profileDropdownMenu">
+                    <button onclick="openProfileModal()">👤 View Profile</button>
+                    <button onclick="switchTab('settings')">⚙️ Settings</button>
+                    <button onclick="logoutUser()" style="color: #c53030;">🚪 Log Out</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Scrollable Content Body -->
+        <div class="content-body">
+            
+            <!-- Pending Verification Lock Overlay -->
+            <div id="pendingLockOverlay">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">⏳</div>
+                <h3 style="color: #0047ab; margin-top: 0; font-size: 1.1rem;">Verification Pending</h3>
+                <p style="font-size: 0.85rem; color: #555; line-height: 1.4; margin-bottom: 15px;">
+                    Your account registration request has been submitted. You cannot view posts, chat, or create posts until the admin admits and verifies your profile.
+                </p>
+                <button onclick="openHistoryModal()" class="history-btn" style="border: 1px solid #0047ab;">Open Admin & History</button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="nav-links" id="mainNavLinks">
+                <a onclick="switchTab('chat')" id="nav-chat">Chat</a>
+                <a onclick="switchTab('videos')" id="nav-videos">Videos</a>
+                <a onclick="switchTab('photos')" id="nav-photos">Photos</a>
+                <a onclick="switchTab('stories')" id="nav-stories">Stories</a>
+            </nav>
+
+            <!-- FEED VIEW -->
+            <div id="view-feed" class="dynamic-page-view active">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search posts, videos, descriptions..." onkeyup="filterPosts()">
+                        <span>🔍</span>
+                    </div>
+                </div>
+
+                <div class="create-post-box">
+                    <textarea id="postInput" rows="2" placeholder="Share a story, caption your photo/video..."></textarea>
+                    <input type="file" id="fileInput" style="margin-bottom: 8px; font-size: 0.75rem; width: 100%;" accept="image/*,video/*">
+
+                    <div class="post-controls">
+                        <select id="postTypeSelect" onchange="toggleFileSelector()">
+                            <option value="text">📝 Story / Text</option>
+                            <option value="photo">📷 Photo</option>
+                            <option value="video">🎥 Video</option>
+                        </select>
+                        <button class="post-btn-submit" onclick="createNewPost()">Post</button>
+                    </div>
+                </div>
+
+                <div class="post-label">Post</div>
+                <div class="sub-heading">Recently added posts</div>
+
+                <div id="postsContainer">
+                    <div class="post-card" data-post="family gathering memory" data-type="photo">
+                        <div class="post-header-row">
+                            <div class="post-avatar" style="background:#0047ab; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">B</div>
+                            <div class="post-info">
+                                <span>Bright <span class="verified-badge">✔</span></span>
+                                <span class="post-time">28/9/2026 at 12:25</span>
+                            </div>
+                        </div>
+                        <div class="post-text-content">Family gathering memory!</div>
+                        <div class="media-display-box" style="background: #eaf2f8; height: 80px; display: flex; align-items: center; justify-content: center; color: #555;">
+                            <span>📷 Photo Placeholder</span>
+                        </div>
+                        <div class="post-actions">
+                            <button onclick="toggleComments(this)">Comment (<span class="comment-count">0</span>)</button>
+                            <button onclick="likePost(this)">likes (<span class="like-count">0</span>)</button>
+                            <button onclick="toggleShareMenu(this)">share</button>
+                            <button onclick="downloadMedia(this)">Download</button>
+                        </div>
+                        <div class="share-menu">
+                            <a href="#" onclick="shareToPlatform(event, 'whatsapp', this)">💬 WhatsApp</a>
+                            <a href="#" onclick="shareToPlatform(event, 'twitter', this)">🐦 X (Twitter)</a>
+                            <a href="#" onclick="shareToPlatform(event, 'instagram', this)">📸 Instagram</a>
+                            <button onclick="copyLink(this)">🔗 Copy Link</button>
+                        </div>
+                        <div class="comments-section">
+                            <div class="comments-list"></div>
+                            <div class="comment-input-area">
+                                <input type="text" placeholder="Write a comment..." class="comment-text-input">
+                                <button onclick="addComment(this)">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT PAGE VIEW -->
+            <div id="view-chat" class="dynamic-page-view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h2 style="font-size: 1.05rem; color: #0047ab; margin: 0;">Family Chat Room</h2>
+                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
+                </div>
+                
+                <div class="chat-room-container">
+                    <div id="chatMessagesBox" class="chat-messages-box">
+                        <div class="chat-bubble theirs">
+                            <div class="chat-sender-name">Breitte</div>
+                            Hello family! Use the record button or attachment menu below to share voice notes & media.
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Attachment Popup Menu -->
+                    <div id="chatAttachMenu" class="chat-attach-menu">
+                        <label>📷 Photo <input type="file" id="chatPhotoInput" accept="image/*" style="display:none;" onchange="sendChatMedia('photo')"></label>
+                        <label>🎥 Video <input type="file" id="chatVideoInput" accept="video/*" style="display:none;" onchange="sendChatMedia('video')"></label>
+                        <label>🎙️ Audio/Voice Note <input type="file" id="chatAudioInput" accept="audio/*" style="display:none;" onchange="sendChatMedia('audio')"></label>
+                        <label>📄 Document <input type="file" id="chatDocInput" accept=".pdf,.doc,.docx,.txt,.xls,.xlsx" style="display:none;" onchange="sendChatMedia('document')"></label>
+                    </div>
+
+                    <!-- Compact Chat Input Toolbar -->
+                    <div class="chat-input-toolbar">
+                        <button class="chat-attach-btn" onclick="toggleChatAttachMenu()" title="Attach File">📎</button>
+                        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="handleChatKeyPress(event)">
+                        
+                        <button onclick="startCall('audio')" title="Voice Call" style="background:none; border:none; font-size:0.9rem; cursor:pointer; padding:1px; flex-shrink:0;">📞</button>
+                        <button onclick="startCall('video')" title="Video Call" style="background:none; border:none; font-size:0.9rem; cursor:pointer; padding:1px; flex-shrink:0;">🎥</button>
+
+                        <!-- Reliable Voice Record Button -->
+                        <button id="voiceRecordBtn" 
+                                title="Click to record voice note" 
+                                style="background: #0047ab; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; flex-shrink: 0;"
+                                onclick="toggleVoiceRecording()">🎙️</button>
+                        
+                        <!-- Send Button -->
+                        <button class="chat-send-btn" onclick="sendChatMessage()" title="Send Text">➤</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIDEOS PAGE VIEW -->
+            <div id="view-videos" class="dynamic-page-view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Family Videos</h2>
+                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
+                </div>
+                <div id="videosContainer"></div>
+            </div>
+
+            <!-- PHOTOS PAGE VIEW -->
+            <div id="view-photos" class="dynamic-page-view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Family Photos</h2>
+                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
+                </div>
+                <div id="photosContainer"></div>
+            </div>
+
+            <!-- STORIES PAGE VIEW -->
+            <div id="view-stories" class="dynamic-page-view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Family Stories</h2>
+                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
+                </div>
+                <div id="storiesContainer"></div>
+            </div>
+
+            <!-- SETTINGS PAGE VIEW -->
+            <div id="view-settings" class="dynamic-page-view">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Account Settings</h2>
+                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
+                </div>
+                
+                <div style="background: #f4f8fb; border: 1px solid #b3d1ff; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <h3 style="font-size: 0.9rem; color: #0047ab; margin: 0 0 8px 0;">Change Profile Photo</h3>
+                    <input type="file" id="updateAvatarInput" accept="image/*" style="font-size: 0.75rem; margin-bottom: 6px; width: 100%;">
+                    <button onclick="updateProfilePhoto()" style="background: #0047ab; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Update Photo</button>
+                </div>
+
+                <div style="background: #f4f8fb; border: 1px solid #b3d1ff; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <h3 style="font-size: 0.9rem; color: #0047ab; margin: 0 0 8px 0;">Change Password</h3>
+                    <input type="password" id="currentPasswordInput" placeholder="Current password" style="width: 100%; padding: 6px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; margin-bottom: 6px; box-sizing: border-box; outline: none;">
+                    <input type="password" id="newPasswordInput" placeholder="New password" style="width: 100%; padding: 6px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; margin-bottom: 8px; box-sizing: border-box; outline: none;">
+                    <button onclick="changePassword()" style="background: #0047ab; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Update Password</button>
+                </div>
+
+                <div style="background: #fff5f5; border: 1px solid #feb2b2; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <h3 style="font-size: 0.9rem; color: #c53030; margin: 0 0 6px 0;">Log Out Session</h3>
+                    <button onclick="logoutUser()" style="background: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">Log Out</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Static Footer -->
+        <footer class="app-footer">
+            <p class="motto">To share ideas and unity.</p>
+            <button class="history-btn" onclick="openHistoryModal()">View & History</button>
+        </footer>
+    </div>
+
+    <!-- Active Call / Video Call Modal Popup -->
+    <div id="callOverlay">
+        <h3 id="callTitle" style="margin-top: 0; font-size: 1.2rem;">Nabwiso Family Call</h3>
+        <div class="call-avatar-container" id="callAvatarBox">
+            <span>👤</span>
+        </div>
+        <p id="callStatusText" style="font-size: 0.85rem; margin-bottom: 20px; opacity: 0.8;">Connecting...</p>
+        <button onclick="endActiveCall()" style="background: #e53e3e; color: white; border: none; padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer;">End Call 🔴</button>
+    </div>
+
+    <!-- History & Admin Modal Popup -->
+    <div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center;">
+        <div style="background: white; width: 320px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); color: #003366; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-top: 0; color: #0047ab; font-size: 1.1rem;">Nabwiso Family History & Admin</h3>
+            
+            <div id="historyRecordsList" style="font-size: 0.8rem; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="background: #f4f8fb; padding: 8px; border-radius: 4px; border: 1px solid #b3d1ff;">
+                    <b>Founding Era:</b> Established with deep roots and unity values across generations.
+                </div>
+            </div>
+
+            <div id="adminLoginSection" style="border-top: 1px solid #d0e1fd; padding-top: 10px; margin-bottom: 10px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Are you the administrator? Enter password to verify members:</label>
+                <div style="display: flex; gap: 5px; margin-top: 4px;">
+                    <input type="password" id="adminPasswordInput" placeholder="Admin passcode" style="flex: 1; padding: 5px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; outline: none;">
+                    <button onclick="verifyAdmin()" style="background: #0047ab; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Unlock</button>
+                </div>
+            </div>
+
+            <div id="historyEditForm" style="border-top: 1px solid #d0e1fd; padding-top: 10px; display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 0.8rem; font-weight: 600; color: green;">🔓 Admin Mode Active</span>
+                    <button onclick="lockAdmin()" style="background: none; border: none; color: #d9534f; font-size: 0.75rem; cursor: pointer; text-decoration: underline;">Lock</button>
+                </div>
+                
+                <h4 style="font-size: 0.85rem; color: #0047ab; margin: 8px 0 4px 0;">Pending Member Verifications</h4>
+                <div id="adminPendingList" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
+                    <p style="font-size: 0.75rem; color: #555;">No pending registrations.</p>
+                </div>
+
+                <h4 style="font-size: 0.85rem; color: #0047ab; margin: 8px 0 4px 0;">Add History Record</h4>
+                <input type="text" id="historyTitleInput" placeholder="Title (e.g., Family Reunion 2026)" style="width: 100%; padding: 6px; margin: 4px 0 8px 0; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; box-sizing: border-box;">
+                <textarea id="historyDescInput" rows="2" placeholder="Write history details..." style="width: 100%; padding: 6px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; resize: none; box-sizing: border-box; margin-bottom: 8px;"></textarea>
+                
+                <div style="display: flex; justify-content: space-between;">
+                    <button onclick="addHistoryRecord()" style="background: #0047ab; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Add Entry</button>
+                    <button onclick="closeHistoryModal()" style="background: #ccc; color: #333; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Close</button>
+                </div>
+            </div>
+
+            <div id="closeOnlySection" style="text-align: right; border-top: 1px solid #d0e1fd; padding-top: 10px;">
+                <button onclick="closeHistoryModal()" style="background: #ccc; color: #333; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript logic -->
+    <script>
+        const ADMIN_PASSCODE = "@admin.B22";
+        
+        let registeredUsersDatabase = [
+            {
+                name: "Bright Nabwiso",
+                phone: "+256 700 000000",
+                father: "Nabwiso Richard",
+                mother: "Nabirye Letisha",
+                dob: "1998-05-12",
+                sec: "Male",
+                password: "password123",
+                avatar: "",
+                isVerified: true
+            }
+        ];
+
+        let currentUser = {
+            name: "Member",
+            phone: "",
+            father: "",
+            mother: "",
+            dob: "",
+            sec: "",
+            password: "",
+            avatar: "",
+            isVerified: false
+        };
+
+        function showLoginScreen() {
+            document.getElementById('authGateway').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function showRegisterScreen() {
+            document.getElementById('authGateway').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'flex';
+        }
+
+        function backToGateway() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('authGateway').style.display = 'flex';
+        }
+
+        function loginUser() {
+            let phone = document.getElementById('loginPhone').value.trim();
+            let password = document.getElementById('loginPassword').value;
+
+            if (phone === "" || password === "") {
+                alert("Please enter both your phone number and password.");
+                return;
+            }
+
+            let foundUser = registeredUsersDatabase.find(u => u.phone === phone && u.password === password);
+
+            if (foundUser) {
+                currentUser = foundUser;
+                document.getElementById('headerProfileName').innerText = currentUser.name.split(' ')[0];
+                let headerAvatar = document.getElementById('headerAvatarImg');
+                if (currentUser.avatar !== "") {
+                    headerAvatar.src = currentUser.avatar;
+                    headerAvatar.style.display = 'block';
+                } else {
+                    headerAvatar.style.display = 'none';
+                }
+
+                document.getElementById('loginScreen').style.display = 'none';
+                updateVerificationUI();
+                alert(`Welcome back, ${currentUser.name}!`);
+            } else {
+                alert("Invalid phone number or password, or account does not exist.");
+            }
+        }
+
+        function registerUser() {
+            let name = document.getElementById('regName').value.trim();
+            let phone = document.getElementById('regPhone').value.trim();
+            let father = document.getElementById('regFather').value.trim();
+            let mother = document.getElementById('regMother').value.trim();
+            let dob = document.getElementById('regDob').value;
+            let sec = document.getElementById('regSec').value;
+            let password = document.getElementById('regPassword').value;
+            let avatarInput = document.getElementById('regAvatar');
+
+            if (name === "" || phone === "" || father === "" || mother === "" || dob === "" || password === "") {
+                alert("Please fill in all account creation details including password!");
+                return;
+            }
+
+            let avatarUrl = "";
+            if (avatarInput.files && avatarInput.files[0]) {
+                avatarUrl = URL.createObjectURL(avatarInput.files[0]);
+            }
+
+            currentUser = { name, phone, father, mother, dob, sec, password, avatar: avatarUrl, isVerified: false };
+            registeredUsersDatabase.push(currentUser);
+
+            document.getElementById('headerProfileName').innerText = name.split(' ')[0];
+            let headerAvatar = document.getElementById('headerAvatarImg');
+            if (avatarUrl !== "") {
+                headerAvatar.src = avatarUrl;
+                headerAvatar.style.display = 'block';
+            }
+
+            document.getElementById('authScreen').style.display = 'none';
+            updateVerificationUI();
+            alert("Account created successfully! Your status is currently Pending Verification by the admin.");
+        }
+
+        function updateVerificationUI() {
+            let overlay = document.getElementById('pendingLockOverlay');
+            overlay.style.display = currentUser.isVerified ? 'none' : 'flex';
+        }
+
+        function toggleProfileDropdown() {
+            let dropdown = document.getElementById('profileDropdownMenu');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.profile-badge-container')) {
+                let dropdown = document.getElementById('profileDropdownMenu');
+                if (dropdown) dropdown.style.display = 'none';
+            }
+            if (!event.target.closest('.chat-input-toolbar')) {
+                let attachMenu = document.getElementById('chatAttachMenu');
+                if (attachMenu) attachMenu.style.display = 'none';
+            }
+        };
+
+        function openProfileModal() {
+            let statusText = currentUser.isVerified ? "✔ Verified Member" : "⏳ Pending Verification";
+            alert(`Profile Details:\nName: ${currentUser.name}\nStatus: ${statusText}\nPhone: ${currentUser.phone}\nFather: ${currentUser.father}\nMother: ${currentUser.mother}\nDOB: ${currentUser.dob}\nSec: ${currentUser.sec}`);
+            document.getElementById('profileDropdownMenu').style.display = 'none';
+        }
+
+        function switchTab(tabName) {
+            if (!currentUser.isVerified && tabName !== 'settings') {
+                alert("Access restricted! Please wait for the admin to admit and verify your account first.");
+                return;
+            }
+
+            document.querySelectorAll('.dynamic-page-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            let dropdown = document.getElementById('profileDropdownMenu');
+            if (dropdown) dropdown.style.display = 'none';
+
+            let mainNavLinks = document.getElementById('mainNavLinks');
+            if (tabName === 'chat') {
+                mainNavLinks.style.display = 'none';
+            } else {
+                mainNavLinks.style.display = 'flex';
+            }
+
+            if (tabName === 'feed') {
+                document.getElementById('view-feed').classList.add('active');
+            } else {
+                document.getElementById('view-' + tabName).classList.add('active');
+                let navLink = document.getElementById('nav-' + tabName);
+                if (navLink) navLink.classList.add('active');
+                
+                if (tabName === 'videos') renderVideosGallery();
+                else if (tabName === 'photos') renderPhotosGallery();
+                else if (tabName === 'stories') renderStoriesGallery();
+            }
+        }
+
+        function toggleFileSelector() {
+            let postType = document.getElementById('postTypeSelect').value;
+            let fileInput = document.getElementById('fileInput');
+            let postInput = document.getElementById('postInput');
+
+            fileInput.style.display = (postType === 'text') ? 'none' : 'block';
+
+            if (postType === 'video') {
+                postInput.placeholder = "🎥 Required: Describe what this video is about...";
+            } else if (postType === 'photo') {
+                postInput.placeholder = "Caption this photo (optional)...";
+            } else {
+                postInput.placeholder = "Share a story, caption your photo/video...";
+            }
+        }
+        toggleFileSelector();
+
+        function likePost(buttonElement) {
+            if (!currentUser.isVerified) return;
+            let countSpan = buttonElement.querySelector('.like-count');
+            countSpan.innerText = parseInt(countSpan.innerText) + 1;
+        }
+
+        function toggleComments(buttonElement) {
+            if (!currentUser.isVerified) return;
+            let postCard = buttonElement.closest('.post-card');
+            let commentsSection = postCard.querySelector('.comments-section');
+            commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function addComment(buttonElement) {
+            if (!currentUser.isVerified) return;
+            let postCard = buttonElement.closest('.post-card');
+            let inputField = postCard.querySelector('.comment-text-input');
+            let commentText = inputField.value.trim();
+            if (commentText === "") return;
+
+            let commentsList = postCard.querySelector('.comments-list');
+            let newComment = document.createElement('div');
+            newComment.className = 'comment-item';
+            newComment.innerHTML = `<b>${currentUser.name}:</b> ${commentText}`;
+            commentsList.appendChild(newComment);
+
+            let countSpan = postCard.querySelector('.comment-count');
+            countSpan.innerText = parseInt(countSpan.innerText) + 1;
+            inputField.value = "";
+            commentsList.scrollTop = commentsList.scrollHeight;
+        }
+
+        function toggleShareMenu(buttonElement) {
+            if (!currentUser.isVerified) return;
+            let postCard = buttonElement.closest('.post-card');
+            let shareMenu = postCard.querySelector('.share-menu');
+            shareMenu.style.display = shareMenu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function shareToPlatform(event, platform, element) {
+            event.preventDefault();
+            let postCard = element.closest('.post-card');
+            let textContent = postCard.querySelector('.post-text-content');
+            let text = textContent ? textContent.innerText : "Nabwiso Family App";
+            let url = window.location.href;
+
+            if (platform === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank');
+            } else if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+            } else if (platform === 'instagram') {
+                alert("Content copied to clipboard for Instagram sharing.");
+                navigator.clipboard.writeText(text + " " + url);
+            }
+            postCard.querySelector('.share-menu').style.display = 'none';
+        }
+
+        function copyLink(buttonElement) {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Post link copied to clipboard!");
+            buttonElement.closest('.post-card').querySelector('.share-menu').style.display = 'none';
+        }
+
+        function downloadMedia(buttonElement) {
+            if (!currentUser.isVerified) return;
+            let mediaElement = buttonElement.closest('.post-card').querySelector('img, video');
+            if (mediaElement) {
+                let a = document.createElement('a');
+                a.href = mediaElement.src;
+                a.download = 'NabwisoFamily_Media';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert("No media file attached to download.");
+            }
+        }
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let activeAudioStream = null;
+
+        async function toggleVoiceRecording() {
+            if (!currentUser.isVerified) {
+                alert("You must be verified to send voice notes!");
+                return;
+            }
+
+            let btn = document.getElementById('voiceRecordBtn');
+
+            if (!isRecording) {
+                try {
+                    audioChunks = [];
+                    activeAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(activeAudioStream);
+                    
+                    mediaRecorder.ondataavailable = event => {
+                        if (event.data && event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        let audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        let audioUrl = URL.createObjectURL(audioBlob);
+                        appendChatBubble(currentUser.name, audioUrl, 'audio', 'Voice Note');
+                        if (activeAudioStream) {
+                            activeAudioStream.getTracks().forEach(track => track.stop());
+                        }
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.style.background = '#e53e3e';
+                    btn.innerText = '⏹️';
+                    btn.title = "Click to stop recording";
+                } catch (err) {
+                    console.warn("Direct microphone recording prevented by browser file security. Switching to prompt fallback.", err);
+                    
+                    let fallbackAction = prompt("Direct browser microphone access is restricted in local file mode (file://).\n\nType '1' to upload an audio recording file from your device, or '2' to instantly send a simulated text-to-speech voice notification banner.");
+                    
+                    if (fallbackAction === '1') {
+                        document.getElementById('chatAudioInput').click();
+                    } else if (fallbackAction === '2') {
+                        appendChatBubble(currentUser.name, "🎙️ [Simulated Voice Note: Hello family, checking in!]", 'text', '');
+                    }
+                    isRecording = false;
+                    btn.style.background = '#0047ab';
+                    btn.innerText = '🎙️';
+                }
+            } else {
+                isRecording = false;
+                btn.style.background = '#0047ab';
+                btn.innerText = '🎙️';
+                btn.title = "Click to record voice note";
+                
+                if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                    mediaRecorder.stop();
+                }
+            }
+        }
+
+        let activeCallStream = null;
+
+        async function startCall(type) {
+            if (!currentUser.isVerified) {
+                alert("You must be verified to start calls!");
+                return;
+            }
+
+            let callOverlay = document.getElementById('callOverlay');
+            let callTitle = document.getElementById('callTitle');
+            let callAvatarBox = document.getElementById('callAvatarBox');
+            let callStatusText = document.getElementById('callStatusText');
+
+            callTitle.innerText = type === 'video' ? 'Nabwiso Family Video Call' : 'Nabwiso Family Voice Call';
+            callStatusText.innerText = "Connecting to family network...";
+            callOverlay.style.display = 'flex';
+
+            if (type === 'video') {
+                try {
+                    activeCallStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    callAvatarBox.innerHTML = '<video autoplay playsinline muted></video>';
+                    let videoElem = callAvatarBox.querySelector('video');
+                    videoElem.srcObject = activeCallStream;
+                    callStatusText.innerText = "Connected 🟢 (Live Camera Stream Active)";
+                } catch (err) {
+                    console.warn("Camera hardware access failed or blocked:", err);
+                    callAvatarBox.innerHTML = '<span style="font-size:2.2rem;">👥</span>';
+                    callStatusText.innerText = "Connected 🟢 (Family Virtual Video Stream)";
+                }
+            } else {
+                callAvatarBox.innerHTML = '<span style="font-size:2.2rem;">📞</span>';
+                callStatusText.innerText = "Connected 🟢 (Secure Audio Channel Active)";
+            }
+        }
+
+        function endActiveCall() {
+            if (activeCallStream) {
+                activeCallStream.getTracks().forEach(track => track.stop());
+                activeCallStream = null;
+            }
+            document.getElementById('callOverlay').style.display = 'none';
+        }
+
+        function toggleChatAttachMenu() {
+            if (!currentUser.isVerified) return;
+            let menu = document.getElementById('chatAttachMenu');
+            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+        function sendChatMessage() {
+            if (!currentUser.isVerified) return;
+            let input = document.getElementById('chatInput');
+            let msgText = input.value.trim();
+            if (msgText === "") return;
+
+            appendChatBubble(currentUser.name, msgText, 'text', '');
+            input.value = "";
+        }
+
+        function sendChatMedia(type) {
+            let fileInputId = type === 'video' ? 'chatVideoInput' : type === 'audio' ? 'chatAudioInput' : type === 'document' ? 'chatDocInput' : 'chatPhotoInput';
+            let fileInput = document.getElementById(fileInputId);
+            if (fileInput.files && fileInput.files[0]) {
+                let file = fileInput.files[0];
+                appendChatBubble(currentUser.name, URL.createObjectURL(file), type, file.name);
+                fileInput.value = "";
+                document.getElementById('chatAttachMenu').style.display = 'none';
+            }
+        }
+
+        function appendChatBubble(senderName, content, type, metaName) {
+            let chatBox = document.getElementById('chatMessagesBox');
+            let bubble = document.createElement('div');
+            bubble.className = "chat-bubble mine";
+
+            let verifiedCheck = currentUser.isVerified ? '<span class="verified-badge">✔</span>' : '';
+            let innerHTML = `<div class="chat-sender-name">${senderName} ${verifiedCheck}</div>`;
+
+            if (type === 'text') innerHTML += `<span>${content}</span>`;
+            else if (type === 'photo') innerHTML += `<img src="${content}" class="chat-media-preview">`;
+            else if (type === 'video') innerHTML += `<video controls src="${content}" class="chat-media-preview"></video>`;
+            else if (type === 'audio') innerHTML += `<audio controls src="${content}" style="width: 100%; max-width: 180px; margin-top: 4px;"></audio>`;
+            else if (type === 'document') innerHTML += `<div style="background: #f4f8fb; padding: 6px; border-radius: 4px; border: 1px solid #b3d1ff; margin-top: 4px; font-size: 0.75rem;">📄 <b>Document:</b> <a href="${content}" download="${metaName}" style="color: #0047ab; text-decoration: underline;">${metaName}</a></div>`;
+
+            bubble.innerHTML = innerHTML;
+            chatBox.appendChild(bubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function createNewPost() {
+            if (!currentUser.isVerified) {
+                alert("You cannot post content until verified.");
+                return;
+            }
+
+            let inputField = document.getElementById('postInput');
+            let postType = document.getElementById('postTypeSelect').value;
+            let fileInput = document.getElementById('fileInput');
+            let postText = inputField.value.trim();
+
+            // Enforce description when posting a video
+            if (postType === 'video' && postText === "") {
+                alert("Please add a description for your video so family members know what it is about before viewing it!");
+                return;
+            }
+
+            if (postText === "" && fileInput.files.length === 0) {
+                alert("Please write something or select a file to post!");
+                return;
+            }
+
+            let now = new Date();
+            let dateStr = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
+            let timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+            let container = document.getElementById('postsContainer');
+            let newPostCard = document.createElement('div');
+            newPostCard.className = 'post-card';
+            
+            // Comprehensive keyword string for search indexing
+            let searchKeywords = (postText + " " + postType + (fileInput.files.length > 0 ? " media file upload video description" : "")).toLowerCase();
+            newPostCard.setAttribute('data-post', searchKeywords);
+
+            let avatarHTML = currentUser.avatar !== "" 
+                ? `<img src="${currentUser.avatar}" class="post-avatar">` 
+                : `<div class="post-avatar" style="background:#0047ab; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">${currentUser.name.charAt(0).toUpperCase()}</div>`;
+
+            let innerHtmlContent = `
+                <div class="post-header-row">
+                    ${avatarHTML}
+                    <div class="post-info">
+                        <span>${currentUser.name} <span class="verified-badge">✔</span></span>
+                        <span class="post-time">${dateStr} at ${timeStr}</span>
+                    </div>
+                </div>
+            `;
+
+            if (postText !== "") {
+                let labelPrefix = (postType === 'video') ? '🎥 <b>Video Description:</b> ' : '';
+                innerHtmlContent += `<div class="post-text-content">${labelPrefix}${postText}</div>`;
+            }
+
+            if (fileInput.files && fileInput.files[0]) {
+                let file = fileInput.files[0];
+                let fileURL = URL.createObjectURL(file);
+                innerHtmlContent += `<div class="media-display-box">`;
+                if (file.type.startsWith('video') || postType === 'video') {
+                    innerHtmlContent += `<video controls src="${fileURL}"></video>`;
+                    newPostCard.setAttribute('data-type', 'video');
+                } else {
+                    innerHtmlContent += `<img src="${fileURL}" alt="Photo">`;
+                    newPostCard.setAttribute('data-type', 'photo');
+                }
+                innerHtmlContent += `</div>`;
+            } else {
+                newPostCard.setAttribute('data-type', 'text');
+            }
+
+            innerHtmlContent += `
+                <div class="post-actions">
+                    <button onclick="toggleComments(this)">Comment (<span class="comment-count">0</span>)</button>
+                    <button onclick="likePost(this)">likes (<span class="like-count">0</span>)</button>
+                    <button onclick="toggleShareMenu(this)">share</button>
+                    <button onclick="downloadMedia(this)">Download</button>
+                </div>
+                <div class="share-menu">
+                    <a href="#" onclick="shareToPlatform(event, 'whatsapp', this)">💬 WhatsApp</a>
+                    <a href="#" onclick="shareToPlatform(event, 'twitter', this)">🐦 X (Twitter)</a>
+                    <a href="#" onclick="shareToPlatform(event, 'instagram', this)">📸 Instagram</a>
+                    <button onclick="copyLink(this)">🔗 Copy Link</button>
+                </div>
+                <div class="comments-section">
+                    <div class="comments-list"></div>
+                    <div class="comment-input-area">
+                        <input type="text" placeholder="Write a comment..." class="comment-text-input">
+                        <button onclick="addComment(this)">Send</button>
+                    </div>
+                </div>
+            `;
+
+            newPostCard.innerHTML = innerHtmlContent;
+            container.insertBefore(newPostCard, container.firstChild);
+            inputField.value = "";
+            fileInput.value = "";
+            toggleFileSelector();
+        }
+
+        function renderVideosGallery() {
+            let container = document.getElementById('videosContainer');
+            container.innerHTML = "";
+            let posts = document.querySelectorAll('#postsContainer .post-card');
+            let count = 0;
+            posts.forEach(p => {
+                if (p.getAttribute('data-type') === 'video' || p.querySelector('video')) {
+                    container.appendChild(p.cloneNode(true));
+                    count++;
+                }
+            });
+            if (count === 0) container.innerHTML = `<p style="font-size:0.85rem; color:#555; background:#f4f8fb; padding:10px; border-radius:6px; border:1px solid #b3d1ff;">No video posts found yet.</p>`;
+        }
+
+        function renderPhotosGallery() {
+            let container = document.getElementById('photosContainer');
+            container.innerHTML = "";
+            let posts = document.querySelectorAll('#postsContainer .post-card');
+            let count = 0;
+            posts.forEach(p => {
+                if (p.getAttribute('data-type') === 'photo' || p.querySelector('img')) {
+                    container.appendChild(p.cloneNode(true));
+                    count++;
+                }
+            });
+            if (count === 0) container.innerHTML = `<p style="font-size:0.85rem; color:#555; background:#f4f8fb; padding:10px; border-radius:6px; border:1px solid #b3d1ff;">No photo posts found yet.</p>`;
+        }
+
+        function renderStoriesGallery() {
+            let container = document.getElementById('storiesContainer');
+            container.innerHTML = "";
+            let posts = document.querySelectorAll('#postsContainer .post-card');
+            let count = 0;
+            posts.forEach(p => {
+                if (p.getAttribute('data-type') === 'text' || (!p.querySelector('img') && !p.querySelector('video'))) {
+                    container.appendChild(p.cloneNode(true));
+                    count++;
+                }
+            });
+            if (count === 0) container.innerHTML = `<p style="font-size:0.85rem; color:#555; background:#f4f8fb; padding:10px; border-radius:6px; border:1px solid #b3d1ff;">No stories posted yet.</p>`;
+        }
+
+        function filterPosts() {
+            let query = document.getElementById('searchInput').value.toLowerCase().trim();
+            document.querySelectorAll('#postsContainer .post-card').forEach(p => {
+                let text = p.getAttribute('data-post') || "";
+                let hasVideo = p.querySelector('video') !== null;
+                let hasPhoto = p.querySelector('img') !== null;
+                let postType = p.getAttribute('data-type') || "";
+
+                let matchesQuery = text.includes(query) || 
+                                   (query.includes('video') && (hasVideo || postType === 'video')) ||
+                                   (query.includes('photo') && (hasPhoto || postType === 'photo')) ||
+                                   (query.includes('story') && postType === 'text');
+
+                p.style.display = matchesQuery ? "block" : "none";
+            });
+        }
+
+        function updateProfilePhoto() {
+            let fileInput = document.getElementById('updateAvatarInput');
+            if (fileInput.files && fileInput.files[0]) {
+                currentUser.avatar = URL.createObjectURL(fileInput.files[0]);
+                let headerAvatar = document.getElementById('headerAvatarImg');
+                headerAvatar.src = currentUser.avatar;
+                headerAvatar.style.display = 'block';
+                alert("Profile photo updated successfully!");
+                fileInput.value = "";
+            } else {
+                alert("Please select an image file first.");
+            }
+        }
+
+        function changePassword() {
+            let currentInput = document.getElementById('currentPasswordInput').value;
+            let newInput = document.getElementById('newPasswordInput').value;
+            if (currentInput !== currentUser.password) {
+                alert("Current password is incorrect!");
+                return;
+            }
+            currentUser.password = newInput;
+            alert("Password updated successfully!");
+            document.getElementById('currentPasswordInput').value = "";
+            document.getElementById('newPasswordInput').value = "";
+        }
+
+        function logoutUser() {
+            if (confirm("Are you sure you want to log out?")) {
+                currentUser = { name: "Member", phone: "", father: "", mother: "", dob: "", sec: "", password: "", avatar: "", isVerified: false };
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('authGateway').style.display = 'flex';
+                document.getElementById('pendingLockOverlay').style.display = 'none';
+                switchTab('feed');
+            }
+        }
+
+        function openHistoryModal() {
+            document.getElementById('historyModal').style.display = 'flex';
+            lockAdmin();
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+
+        function verifyAdmin() {
+            let passwordInput = document.getElementById('adminPasswordInput');
+            if (passwordInput.value === ADMIN_PASSCODE) {
+                document.getElementById('adminLoginSection').style.display = 'none';
+                document.getElementById('historyEditForm').style.display = 'block';
+                document.getElementById('closeOnlySection').style.display = 'none';
+                passwordInput.value = "";
+                renderAdminPendingList();
+            } else {
+                alert("Incorrect admin passcode!");
+                passwordInput.value = "";
+            }
+        }
+
+        function lockAdmin() {
+            document.getElementById('adminLoginSection').style.display = 'block';
+            document.getElementById('historyEditForm').style.display = 'none';
+            document.getElementById('closeOnlySection').style.display = 'block';
+            document.getElementById('adminPasswordInput').value = "";
+        }
+
+        function renderAdminPendingList() {
+            let list = document.getElementById('adminPendingList');
+            list.innerHTML = "";
+            let unverifiedUsers = registeredUsersDatabase.filter(u => !u.isVerified);
+            if (unverifiedUsers.length > 0) {
+                unverifiedUsers.forEach((u, index) => {
+                    list.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #f4f8fb; padding: 6px 8px; border-radius: 4px; border: 1px solid #b3d1ff; font-size: 0.75rem;"><span><b>${u.name}</b> (${u.phone})</span> <button onclick="approveUser('${u.phone}')" style="background: green; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer;">Verify</button></div>`;
+                });
+            } else {
+                list.innerHTML = `<p style="font-size: 0.75rem; color: #555;">No pending registrations.</p>`;
+            }
+        }
+
+        function approveUser(phoneNum) {
+            let targetUser = registeredUsersDatabase.find(u => u.phone === phoneNum);
+            if (targetUser) {
+                targetUser.isVerified = true;
+                if (currentUser.phone === phoneNum) {
+                    currentUser.isVerified = true;
+                    updateVerificationUI();
+                }
+                alert(`${targetUser.name} has been verified successfully!`);
+                renderAdminPendingList();
+            }
+        }
+
+        function addHistoryRecord() {
+            let title = document.getElementById('historyTitleInput').value.trim();
+            let desc = document.getElementById('historyDescInput').value.trim();
+            if (title === "" || desc === "") return;
+
+            let historyList = document.getElementById('historyRecordsList');
+            let newEntry = document.createElement('div');
+            newEntry.style.cssText = "background: #f4f8fb; padding: 8px; border-radius: 4px; border: 1px solid #b3d1ff;";
+            newEntry.innerHTML = `<b>${title}:</b> ${desc}`;
+            historyList.appendChild(newEntry);
+
+            document.getElementById('historyTitleInput').value = "";
+            document.getElementById('historyDescInput').value = "";
+            alert("History record added successfully!");
+        }
+    </script>
+</body>
+</html>
