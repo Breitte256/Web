@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nabwiso Family</title>
+    <!-- Supabase JavaScript SDK Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Modern clean font family -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-
-
         /* App Container */
         .app-container {
             width: 100%;
@@ -1140,6 +1140,11 @@
 
     <!-- JavaScript logic -->
     <script>
+        // Initialize Supabase Connection
+        const SUPABASE_URL = 'https://dltwgxieaonbnhmsvptv.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_0LjvAXbDh9z054JnElkD6Q_ZPjjkGGd';
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const ADMIN_PASSCODE = "@admin.B22";
         
         let registeredUsersDatabase = [
@@ -1214,7 +1219,7 @@
             }
         }
 
-        function registerUser() {
+        async function registerUser() {
             let name = document.getElementById('regName').value.trim();
             let phone = document.getElementById('regPhone').value.trim();
             let father = document.getElementById('regFather').value.trim();
@@ -1234,6 +1239,16 @@
                 avatarUrl = URL.createObjectURL(avatarInput.files[0]);
             }
 
+            // Insert user into Supabase database table 'users'
+            const { data, error } = await _supabase
+                .from('users')
+                .insert([{ name, phone, password, father, mother, dob, sec }]);
+
+            if (error) {
+                alert("Error saving account to Supabase: " + error.message);
+                return;
+            }
+
             currentUser = { name, phone, father, mother, dob, sec, password, avatar: avatarUrl, isVerified: false };
             registeredUsersDatabase.push(currentUser);
 
@@ -1246,7 +1261,7 @@
 
             document.getElementById('authScreen').style.display = 'none';
             updateVerificationUI();
-            alert("Account created successfully! Your status is currently Pending Verification by the admin.");
+            alert("Account created successfully and saved to Supabase! Your status is currently Pending Verification by the admin.");
         }
 
         function updateVerificationUI() {
@@ -1576,7 +1591,6 @@
             let fileInput = document.getElementById('fileInput');
             let postText = inputField.value.trim();
 
-            // Enforce description when posting a video
             if (postType === 'video' && postText === "") {
                 alert("Please add a description for your video so family members know what it is about before viewing it!");
                 return;
@@ -1595,7 +1609,6 @@
             let newPostCard = document.createElement('div');
             newPostCard.className = 'post-card';
             
-            // Comprehensive keyword string for search indexing
             let searchKeywords = (postText + " " + postType + (fileInput.files.length > 0 ? " media file upload video description" : "")).toLowerCase();
             newPostCard.setAttribute('data-post', searchKeywords);
 
