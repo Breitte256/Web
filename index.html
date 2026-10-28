@@ -1240,7 +1240,7 @@
             }
 
             // Insert user into Supabase database table 'users'
-            const { data, error } = await _supabase
+            const { error } = await _supabase
                 .from('users')
                 .insert([{ name, phone, password, father, mother, dob, sec }]);
 
@@ -1261,7 +1261,7 @@
 
             document.getElementById('authScreen').style.display = 'none';
             updateVerificationUI();
-            alert("Account created successfully and saved to Supabase! Your status is currently Pending Verification by the admin.");
+            alert("Account created and saved to Supabase successfully! Status is Pending Verification.");
         }
 
         function updateVerificationUI() {
@@ -1447,9 +1447,17 @@
                         }
                     };
 
-                    mediaRecorder.onstop = () => {
+                    mediaRecorder.onstop = async () => {
                         let audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         let audioUrl = URL.createObjectURL(audioBlob);
+                        
+                        // Save voice note to Supabase messages table
+                        await _supabase.from('messages').insert([{
+                            sender_name: currentUser.name,
+                            message_content: audioUrl,
+                            message_type: 'audio'
+                        }]);
+
                         appendChatBubble(currentUser.name, audioUrl, 'audio', 'Voice Note');
                         if (activeAudioStream) {
                             activeAudioStream.getTracks().forEach(track => track.stop());
@@ -1469,7 +1477,13 @@
                     if (fallbackAction === '1') {
                         document.getElementById('chatAudioInput').click();
                     } else if (fallbackAction === '2') {
-                        appendChatBubble(currentUser.name, "🎙️ [Simulated Voice Note: Hello family, checking in!]", 'text', '');
+                        let simText = "🎙️ [Simulated Voice Note: Hello family, checking in!]";
+                        await _supabase.from('messages').insert([{
+                            sender_name: currentUser.name,
+                            message_content: simText,
+                            message_type: 'text'
+                        }]);
+                        appendChatBubble(currentUser.name, simText, 'text', '');
                     }
                     isRecording = false;
                     btn.style.background = '#0047ab';
@@ -1540,22 +1554,52 @@
             if (event.key === 'Enter') sendChatMessage();
         }
 
-        function sendChatMessage() {
+        async function sendChatMessage() {
             if (!currentUser.isVerified) return;
             let input = document.getElementById('chatInput');
             let msgText = input.value.trim();
             if (msgText === "") return;
 
+            // Save text message to Supabase messages table
+            const { error } = await _supabase
+                .from('messages')
+                .insert([{ 
+                    sender_name: currentUser.name, 
+                    message_content: msgText, 
+                    message_type: 'text' 
+                }]);
+
+            if (error) {
+                alert("Error sending message to Supabase: " + error.message);
+                return;
+            }
+
             appendChatBubble(currentUser.name, msgText, 'text', '');
             input.value = "";
         }
 
-        function sendChatMedia(type) {
+        async function sendChatMedia(type) {
             let fileInputId = type === 'video' ? 'chatVideoInput' : type === 'audio' ? 'chatAudioInput' : type === 'document' ? 'chatDocInput' : 'chatPhotoInput';
             let fileInput = document.getElementById(fileInputId);
             if (fileInput.files && fileInput.files[0]) {
                 let file = fileInput.files[0];
-                appendChatBubble(currentUser.name, URL.createObjectURL(file), type, file.name);
+                let fileUrl = URL.createObjectURL(file);
+
+                // Save media message to Supabase messages table
+                const { error } = await _supabase
+                    .from('messages')
+                    .insert([{ 
+                        sender_name: currentUser.name, 
+                        message_content: fileUrl, 
+                        message_type: type 
+                    }]);
+
+                if (error) {
+                    alert("Error sending media to Supabase: " + error.message);
+                    return;
+                }
+
+                appendChatBubble(currentUser.name, fileUrl, type, file.name);
                 fileInput.value = "";
                 document.getElementById('chatAttachMenu').style.display = 'none';
             }
@@ -1580,7 +1624,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function createNewPost() {
+        async function createNewPost() {
             if (!currentUser.isVerified) {
                 alert("You cannot post content until verified.");
                 return;
@@ -1601,6 +1645,26 @@
                 return;
             }
 
+            let mediaUrl = "";
+            if (fileInput.files && fileInput.files[0]) {
+                mediaUrl = URL.createObjectURL(fileInput.files[0]);
+            }
+
+            // Insert post into Supabase posts table
+            const { error } = await _supabase
+                .from('posts')
+                .insert([{ 
+                    author_name: currentUser.name, 
+                    content: postText, 
+                    post_type: postType, 
+                    media_url: mediaUrl 
+                }]);
+
+            if (error) {
+                alert("Error saving post to Supabase: " + error.message);
+                return;
+            }
+
             let now = new Date();
             let dateStr = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
             let timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
@@ -1609,7 +1673,7 @@
             let newPostCard = document.createElement('div');
             newPostCard.className = 'post-card';
             
-            let searchKeywords = (postText + " " + postType + (fileInput.files.length > 0 ? " media file upload video description" : "")).toLowerCase();
+            let searchKeywords = (postText + " " + postType).toLowerCase();
             newPostCard.setAttribute('data-post', searchKeywords);
 
             let avatarHTML = currentUser.avatar !== "" 
@@ -1631,15 +1695,13 @@
                 innerHtmlContent += `<div class="post-text-content">${labelPrefix}${postText}</div>`;
             }
 
-            if (fileInput.files && fileInput.files[0]) {
-                let file = fileInput.files[0];
-                let fileURL = URL.createObjectURL(file);
+            if (mediaUrl !== "") {
                 innerHtmlContent += `<div class="media-display-box">`;
-                if (file.type.startsWith('video') || postType === 'video') {
-                    innerHtmlContent += `<video controls src="${fileURL}"></video>`;
+                if (postType === 'video') {
+                    innerHtmlContent += `<video controls src="${mediaUrl}"></video>`;
                     newPostCard.setAttribute('data-type', 'video');
                 } else {
-                    innerHtmlContent += `<img src="${fileURL}" alt="Photo">`;
+                    innerHtmlContent += `<img src="${mediaUrl}" alt="Photo">`;
                     newPostCard.setAttribute('data-type', 'photo');
                 }
                 innerHtmlContent += `</div>`;
@@ -1674,6 +1736,7 @@
             inputField.value = "";
             fileInput.value = "";
             toggleFileSelector();
+            alert("Post published and saved to Supabase successfully!");
         }
 
         function renderVideosGallery() {
