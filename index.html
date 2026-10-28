@@ -1263,10 +1263,13 @@
                 avatarUrl = URL.createObjectURL(avatarInput.files[0]);
             }
 
-            // Completely omitting "id" so Supabase auto-generates it correctly via the identity sequence
+            // Generate a unique numeric ID using current timestamp to bypass identity/null issues completely
+            const uniqueId = Math.floor(Date.now() / 1000);
+
             const { error } = await _supabase
                 .from('users')
                 .insert([{ 
+                    id: uniqueId, 
                     name: name, 
                     phone: phone, 
                     password: password, 
