@@ -1212,7 +1212,6 @@
 
             if (foundUsers && foundUsers.length > 0) {
                 currentUser = foundUsers[0];
-                // Map database column is_verified to isVerified property cleanly
                 currentUser.isVerified = currentUser.is_verified !== undefined ? currentUser.is_verified : true;
 
                 document.getElementById('headerProfileName').innerText = currentUser.name.split(' ')[0];
@@ -1252,10 +1251,11 @@
                 avatarUrl = URL.createObjectURL(avatarInput.files[0]);
             }
 
-            // Updated payload to match Supabase database columns completely
+            // Forcing Supabase to bypass hardcoded primary keys and auto-generate ID using undefined
             const { error } = await _supabase
                 .from('users')
                 .insert([{ 
+                    id: undefined,
                     name: name, 
                     phone: phone, 
                     password: password, 
