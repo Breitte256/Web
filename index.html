@@ -1239,7 +1239,6 @@
                 avatarUrl = URL.createObjectURL(avatarInput.files[0]);
             }
 
-            // Insert user into Supabase database table 'users'
             const { error } = await _supabase
                 .from('users')
                 .insert([{ name, phone, password, father, mother, dob, sec }]);
@@ -1451,11 +1450,11 @@
                         let audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         let audioUrl = URL.createObjectURL(audioBlob);
                         
-                        // Save voice note to Supabase messages table
                         await _supabase.from('messages').insert([{
                             sender_name: currentUser.name,
-                            message_content: audioUrl,
-                            message_type: 'audio'
+                            recipient_name: 'Everyone',
+                            message_content: '[Voice Note]',
+                            media_url: audioUrl
                         }]);
 
                         appendChatBubble(currentUser.name, audioUrl, 'audio', 'Voice Note');
@@ -1480,8 +1479,8 @@
                         let simText = "🎙️ [Simulated Voice Note: Hello family, checking in!]";
                         await _supabase.from('messages').insert([{
                             sender_name: currentUser.name,
-                            message_content: simText,
-                            message_type: 'text'
+                            recipient_name: 'Everyone',
+                            message_content: simText
                         }]);
                         appendChatBubble(currentUser.name, simText, 'text', '');
                     }
@@ -1560,13 +1559,12 @@
             let msgText = input.value.trim();
             if (msgText === "") return;
 
-            // Save text message to Supabase messages table
             const { error } = await _supabase
                 .from('messages')
                 .insert([{ 
                     sender_name: currentUser.name, 
-                    message_content: msgText, 
-                    message_type: 'text' 
+                    recipient_name: 'Everyone', 
+                    message_content: msgText 
                 }]);
 
             if (error) {
@@ -1585,13 +1583,13 @@
                 let file = fileInput.files[0];
                 let fileUrl = URL.createObjectURL(file);
 
-                // Save media message to Supabase messages table
                 const { error } = await _supabase
                     .from('messages')
                     .insert([{ 
                         sender_name: currentUser.name, 
-                        message_content: fileUrl, 
-                        message_type: type 
+                        recipient_name: 'Everyone', 
+                        message_content: `[${type.toUpperCase()}]`, 
+                        media_url: fileUrl 
                     }]);
 
                 if (error) {
@@ -1650,7 +1648,6 @@
                 mediaUrl = URL.createObjectURL(fileInput.files[0]);
             }
 
-            // Insert post into Supabase posts table
             const { error } = await _supabase
                 .from('posts')
                 .insert([{ 
