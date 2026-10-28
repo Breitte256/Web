@@ -1189,7 +1189,7 @@
             document.getElementById('authGateway').style.display = 'flex';
         }
 
-        function loginUser() {
+        async function loginUser() {
             let phone = document.getElementById('loginPhone').value.trim();
             let password = document.getElementById('loginPassword').value;
 
@@ -1198,13 +1198,25 @@
                 return;
             }
 
-            let foundUser = registeredUsersDatabase.find(u => u.phone === phone && u.password === password);
+            // Query Supabase database directly for live accounts
+            const { data: foundUsers, error } = await _supabase
+                .from('users')
+                .select('*')
+                .eq('phone', phone)
+                .eq('password', password);
 
-            if (foundUser) {
-                currentUser = foundUser;
+            if (error) {
+                alert("Database error during login: " + error.message);
+                return;
+            }
+
+            if (foundUsers && foundUsers.length > 0) {
+                currentUser = foundUsers[0];
+                currentUser.isVerified = currentUser.isVerified !== undefined ? currentUser.isVerified : true;
+
                 document.getElementById('headerProfileName').innerText = currentUser.name.split(' ')[0];
                 let headerAvatar = document.getElementById('headerAvatarImg');
-                if (currentUser.avatar !== "") {
+                if (currentUser.avatar && currentUser.avatar !== "") {
                     headerAvatar.src = currentUser.avatar;
                     headerAvatar.style.display = 'block';
                 } else {
