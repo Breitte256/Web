@@ -3,16 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nabwiso Family</title>
+    <title>Nabwiso Family App</title>
     <!-- Supabase JavaScript SDK Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Modern clean font family -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
         /* App Container */
         .app-container {
             width: 100%;
-            height:auto;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
             background: #ffffff;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 71, 171, 0.12);
@@ -1198,7 +1211,6 @@
                 return;
             }
 
-            // Query Supabase database directly for live accounts
             const { data: foundUsers, error } = await _supabase
                 .from('users')
                 .select('*')
@@ -1251,11 +1263,10 @@
                 avatarUrl = URL.createObjectURL(avatarInput.files[0]);
             }
 
-            // Forcing Supabase to bypass hardcoded primary keys and auto-generate ID using undefined
+            // Completely omitting "id" so Supabase auto-generates it correctly via the identity sequence
             const { error } = await _supabase
                 .from('users')
                 .insert([{ 
-                    id: undefined,
                     name: name, 
                     phone: phone, 
                     password: password, 
