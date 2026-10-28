@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nabwiso Family</title>
-
-<link rel="manifest" href="manifest.json">
-
     <!-- Supabase JavaScript SDK Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Modern clean font family -->
@@ -1215,7 +1212,8 @@
 
             if (foundUsers && foundUsers.length > 0) {
                 currentUser = foundUsers[0];
-                currentUser.isVerified = currentUser.isVerified !== undefined ? currentUser.isVerified : true;
+                // Map database column is_verified to isVerified property cleanly
+                currentUser.isVerified = currentUser.is_verified !== undefined ? currentUser.is_verified : true;
 
                 document.getElementById('headerProfileName').innerText = currentUser.name.split(' ')[0];
                 let headerAvatar = document.getElementById('headerAvatarImg');
@@ -1254,9 +1252,20 @@
                 avatarUrl = URL.createObjectURL(avatarInput.files[0]);
             }
 
+            // Updated payload to match Supabase database columns completely
             const { error } = await _supabase
                 .from('users')
-                .insert([{ name, phone, password, father, mother, dob, sec }]);
+                .insert([{ 
+                    name: name, 
+                    phone: phone, 
+                    password: password, 
+                    father: father, 
+                    mother: mother, 
+                    dob: dob, 
+                    sec: sec, 
+                    avatar: avatarUrl || null,
+                    is_verified: false 
+                }]);
 
             if (error) {
                 alert("Error saving account to Supabase: " + error.message);
