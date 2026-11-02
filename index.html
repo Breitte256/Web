@@ -1,1947 +1,438 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nabwiso Family App</title>
-    <!-- Supabase JavaScript SDK Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Modern clean font family -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', Arial, sans-serif;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* App Container */
-        .app-container {
-            width: 100%;
-            max-width: 450px;
-            height: auto;
-            max-height: 850px;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 71, 171, 0.12);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Initial Gateway Authentication Screen Overlay */
-        #authGateway {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            z-index: 250;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        /* Account Registration & Login Screen overlays */
-        .auth-screen-panel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        .auth-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #0047ab;
-            margin: 0 auto;
-        }
-
-        .auth-title {
-            color: #0047ab;
-            font-size: 1.3rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        .auth-subtitle {
-            font-size: 0.8rem;
-            color: #555;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .auth-form-group {
-            margin-bottom: 10px;
-        }
-
-        .auth-form-group label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 3px;
-            color: #003366;
-            text-align: left;
-        }
-
-        .auth-form-group input, .auth-form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #b3d1ff;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            box-sizing: border-box;
-            outline: none;
-            font-family: 'Inter', Arial, sans-serif;
-        }
-
-        .auth-btn {
-            background-color: #0047ab;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .auth-btn:hover {
-            background-color: #003380;
-        }
-
-        .auth-gateway-btn {
-            background-color: #0047ab;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 12px;
-            font-family: 'Inter', Arial, sans-serif;
-        }
-
-        .auth-gateway-btn.secondary {
-            background-color: #f0f6ff;
-            color: #0047ab;
-            border: 1px solid #0047ab;
-        }
-
-        .auth-gateway-btn:hover {
-            opacity: 0.9;
-        }
-
-        /* Header (Static) */
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #0047ab;
-            color: white;
-            padding: 14px 16px;
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .header-logo {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .app-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .profile-badge-container {
-            position: relative;
-        }
-
-        .profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 20px;
-            padding: 3px 10px 3px 4px;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.15);
-            cursor: pointer;
-            color: white;
-        }
-
-        .header-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #fff;
-        }
-
-        /* Profile Dropdown Menu */
-        .profile-dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 38px;
-            background: white;
-            border: 1px solid #0047ab;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            width: 160px;
-            z-index: 300;
-            overflow: hidden;
-        }
-
-        .profile-dropdown button {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            padding: 10px 12px;
-            font-size: 0.8rem;
-            color: #003366;
-            cursor: pointer;
-            font-family: 'Inter', Arial, sans-serif;
-            border-bottom: 1px solid #f0f6ff;
-        }
-
-        .profile-dropdown button:hover {
-            background: #f0f6ff;
-        }
-
-        /* Scrollable Content Body */
-        .content-body {
-            padding: 15px;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* Pending Verification Lock Overlay */
-        #pendingLockOverlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.96);
-            z-index: 100;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Navigation Links */
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 12px;
-        }
-
-        .nav-links a {
-            color: #0047ab;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            width: fit-content;
-            cursor: pointer;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            text-decoration: underline;
-            font-weight: 700;
-        }
-
-        /* Search Bar & Create Post Form */
-        .search-container {
-            border-top: 1px solid #d0e1fd;
-            padding-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            border: 1px solid #0047ab;
-            border-radius: 6px;
-            padding: 6px 10px;
-            width: 100%;
-            background: #fff;
-            margin-bottom: 8px;
-            box-sizing: border-box;
-        }
-
-        .search-box input {
-            border: none;
-            outline: none;
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 0.85rem;
-            width: 100%;
-            color: #003366;
-            background: transparent;
-        }
-
-        .create-post-box {
-            background: #f0f6ff;
-            border: 1px solid #b3d1ff;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 12px;
-        }
-
-        .create-post-box textarea {
-            width: 100%;
-            border: 1px solid #b3d1ff;
-            border-radius: 6px;
-            padding: 8px;
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 0.85rem;
-            resize: none;
-            outline: none;
-            box-sizing: border-box;
-            margin-bottom: 8px;
-        }
-
-        .post-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .post-controls select {
-            border: 1px solid #0047ab;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 0.8rem;
-            color: #0047ab;
-            background: white;
-            outline: none;
-        }
-
-        .post-btn-submit {
-            background-color: #0047ab;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .post-btn-submit:hover {
-            background-color: #003380;
-        }
-
-        .post-label {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin: 4px 0 2px 0;
-        }
-
-        .sub-heading {
-            font-size: 0.85rem;
-            margin: 0 0 10px 0;
-            color: #555;
-        }
-
-        /* Post Cards */
-        .post-card {
-            border: 1px solid #b3d1ff;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 12px;
-            background: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            position: relative;
-        }
-
-        .post-header-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-
-        .post-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #b3d1ff;
-        }
-
-        .post-info {
-            font-size: 0.8rem;
-            color: #444;
-            font-weight: 600;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .post-time {
-            font-size: 0.7rem;
-            color: #777;
-            font-weight: 400;
-        }
-
-        .verified-badge {
-            color: #0047ab;
-            font-size: 0.75rem;
-            margin-left: 2px;
-        }
-
-        .post-text-content {
-            font-size: 0.85rem;
-            color: #333;
-            margin-bottom: 8px;
-            word-break: break-word;
-        }
-
-        .media-display-box {
-            width: 100%;
-            max-height: 180px;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 8px;
-            background: #f4f8fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .media-display-box img, .media-display-box video {
-            width: 100%;
-            max-height: 180px;
-            object-fit: cover;
-        }
-
-        .post-actions {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            border-top: 1px solid #edf2f7;
-            padding-top: 6px;
-        }
-
-        .post-actions button {
-            background: none;
-            border: none;
-            color: #0047ab;
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .post-actions button:hover {
-            text-decoration: underline;
-        }
-
-        /* Share Menu Popup */
-        .share-menu {
-            display: none;
-            position: absolute;
-            right: 10px;
-            bottom: 40px;
-            background: white;
-            border: 1px solid #0047ab;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 8px;
-            z-index: 10;
-            width: 150px;
-        }
-
-        .share-menu a, .share-menu button {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            padding: 5px 6px;
-            font-size: 0.75rem;
-            color: #0047ab;
-            text-decoration: none;
-            cursor: pointer;
-            font-family: 'Inter', Arial, sans-serif;
-            border-radius: 4px;
-        }
-
-        .share-menu a:hover, .share-menu button:hover {
-            background: #f0f6ff;
-        }
-
-        /* Comments Section Styling */
-        .comments-section {
-            margin-top: 8px;
-            border-top: 1px dashed #d0e1fd;
-            padding-top: 8px;
-            display: none;
-        }
-
-        .comments-list {
-            max-height: 100px;
-            overflow-y: auto;
-            margin-bottom: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .comment-item {
-            background: #f4f8fb;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            color: #333;
-        }
-
-        .comment-input-area {
-            display: flex;
-            gap: 4px;
-        }
-
-        .comment-input-area input {
-            flex: 1;
-            padding: 4px 6px;
-            border: 1px solid #b3d1ff;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            outline: none;
-            font-family: 'Inter', Arial, sans-serif;
-        }
-
-        .comment-input-area button {
-            background: #0047ab;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-        }
-
-        /* WhatsApp Style Chat Room UI Styling */
-        .chat-room-container {
-            display: flex;
-            flex-direction: column;
-            height: 520px;
-            background: #e5ddd5;
-            border: 1px solid #b3d1ff;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .chat-messages-box {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .chat-bubble {
-            max-width: 75%;
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            position: relative;
-            word-break: break-word;
-            background: #ffffff;
-            color: #333;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .chat-bubble.mine {
-            background: #dcf8c6;
-            align-self: flex-end;
-        }
-
-        .chat-bubble.theirs {
-            background: #ffffff;
-            align-self: flex-start;
-        }
-
-        .chat-sender-name {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #0047ab;
-            margin-bottom: 2px;
-        }
-
-        .chat-media-preview {
-            max-width: 100%;
-            max-height: 140px;
-            border-radius: 6px;
-            margin-top: 4px;
-            margin-bottom: 4px;
-            display: block;
-            object-fit: cover;
-        }
-
-        /* Perfectly fitted WhatsApp-style Chat Toolbar */
-        .chat-input-toolbar {
-            display: flex;
-            align-items: center;
-            background: #f0f0f0;
-            padding: 6px 6px;
-            gap: 4px;
-            border-top: 1px solid #ccc;
-            box-sizing: border-box;
-            width: 100%;
-        }
-
-        .chat-input-toolbar input[type="text"] {
-            flex: 1;
-            min-width: 0;
-            padding: 6px 8px;
-            border: none;
-            border-radius: 16px;
-            outline: none;
-            font-size: 0.75rem;
-            font-family: 'Inter', Arial, sans-serif;
-            background: #fff;
-        }
-
-        .chat-attach-btn {
-            background: none;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            color: #555;
-            padding: 2px;
-            flex-shrink: 0;
-        }
-
-        .chat-send-btn {
-            background: #0047ab;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.75rem;
-            flex-shrink: 0;
-        }
-
-        /* WhatsApp style attachment popup menu */
-        .chat-attach-menu {
-            display: none;
-            position: absolute;
-            bottom: 55px;
-            left: 10px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            padding: 8px;
-            z-index: 50;
-            width: 160px;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .chat-attach-menu label {
-            font-size: 0.75rem;
-            color: #003366;
-            cursor: pointer;
-            padding: 6px 8px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .chat-attach-menu label:hover {
-            background: #f0f6ff;
-        }
-
-        /* Call Modal Overlay */
-        #callOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.88);
-            z-index: 500;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .call-avatar-container {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: #0047ab;
-            border: 3px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .call-avatar-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Static Footer */
-        .app-footer {
-            text-align: center;
-            background-color: #0047ab;
-            color: white;
-            padding: 12px 15px;
-            flex-shrink: 0;
-        }
-
-        .motto {
-            font-size: 0.85rem;
-            margin: 0 0 6px 0;
-            font-style: italic;
-            opacity: 0.9;
-        }
-
-        .history-btn {
-            background: white;
-            border: none;
-            color: #0047ab;
-            padding: 5px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-family: 'Inter', Arial, sans-serif;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .history-btn:hover {
-            background: #e6f0ff;
-        }
-
-        .dynamic-page-view {
-            display: none;
-        }
-
-        .dynamic-page-view.active {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nabwiso Family Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --blue:#174ea6;--blue-dark:#103b80;--blue-soft:#eaf2ff;
+  --ink:#17243a;--muted:#68778d;--line:#e2e9f3;--surface:#ffffff;
+  --page:#f4f7fc;--green:#16865b;--red:#b8323a;
+  --shadow:0 14px 40px rgba(25,55,105,.09);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:radial-gradient(circle at 10% 0%,#e8f1ff 0,transparent 32%),var(--page);
+  color:var(--ink);font-family:Inter,Arial,sans-serif;min-height:100vh;
+  display:flex;justify-content:center;padding:24px;
+}
+.app{
+  width:100%;max-width:1040px;min-height:calc(100vh - 48px);background:var(--surface);
+  display:flex;flex-direction:column;border:1px solid #e7edf6;border-radius:22px;
+  overflow:hidden;box-shadow:var(--shadow)
+}
+header{
+  background:linear-gradient(115deg,#123d83,#1e63c6 65%,#4387e8);color:white;
+  padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+header h1{font-size:1.22rem;letter-spacing:-.035em;margin:0 0 4px;font-weight:700}
+header small{opacity:.86;font-size:.82rem}
+#memberLabel{
+  border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.13);
+  border-radius:999px;padding:8px 13px;font-size:.8rem;font-weight:600
+}
+.content{padding:26px 30px;flex:1;overflow:auto}
+h2{font-size:1.08rem;color:var(--ink);letter-spacing:-.025em;margin:0 0 14px}
+h3{font-size:.94rem;color:var(--ink);margin:0 0 12px}
+p{line-height:1.55}
+.panel{
+  border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;
+  background:#fff;box-shadow:0 5px 18px rgba(30,60,110,.035)
+}
+label{display:block;color:#46556c;font-size:.79rem;font-weight:600;margin:10px 0 5px}
+input,textarea,select{
+  width:100%;padding:12px 13px;border:1px solid #d7e0ed;border-radius:10px;
+  font:inherit;font-size:.9rem;color:var(--ink);background:#fbfcff;margin:3px 0 9px;
+  outline:none;transition:border-color .18s,box-shadow .18s
+}
+input:focus,textarea:focus,select:focus{border-color:#4b85dc;box-shadow:0 0 0 3px rgba(45,111,210,.12);background:#fff}
+input[type=file]{padding:9px;background:#f8faff}
+textarea{resize:vertical;min-height:88px}
+button{
+  border:0;border-radius:10px;padding:11px 16px;
+  background:linear-gradient(135deg,#1b56ad,#2874d8);color:white;
+  font:600 .87rem Inter,Arial,sans-serif;cursor:pointer;
+  box-shadow:0 5px 12px rgba(23,78,166,.16);transition:transform .15s,filter .15s,box-shadow .15s
+}
+button:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 8px 16px rgba(23,78,166,.2)}
+button:active{transform:translateY(0)}
+button.secondary{background:#edf4ff;color:var(--blue);border:1px solid #d8e6fb;box-shadow:none}
+button.danger{background:#b8323a}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{min-width:0}
+.row>h2{flex:1}
+nav{
+  display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px;padding:7px;
+  background:#f2f6fc;border:1px solid #e7edf6;border-radius:14px
+}
+nav button{flex:1;min-width:100px;padding:10px 12px;background:transparent;color:#52627a;box-shadow:none}
+nav button:hover{background:#e5efff;color:var(--blue);box-shadow:none}
+.hidden{display:none!important}
+.muted{color:var(--muted);font-size:.82rem}
+.status{padding:12px 14px;border-radius:11px;background:#edf4ff;color:#28548f;font-size:.85rem;margin:10px 0 14px;border:1px solid #dce9fc}
+.error{background:#fff1f1;color:#9c2424;border-color:#f5d7d7}
+.success{background:#edfaf3;color:#176b45;border-color:#d1f0df}
+.post,.message,.member{
+  border:1px solid var(--line);border-radius:14px;padding:14px;margin:11px 0;background:#fff
+}
+.post-head{display:flex;gap:11px;align-items:center;margin-bottom:10px}
+.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#e7effb;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.post-media{width:100%;max-height:360px;object-fit:contain;border-radius:11px;background:#f4f7fb;margin-top:10px}
+.message{max-width:82%;background:#f3f6fb}
+.message.mine{margin-left:auto;background:#eaf3ff;border-color:#d8e7fc}
+small.time{display:block;color:#8290a2;font-size:.72rem;margin-top:5px}
+footer{background:#f7f9fd;color:#78869a;border-top:1px solid var(--line);padding:16px;text-align:center;justify-content:center;font-size:.77rem}
+#authView{padding:18px 0 30px}
+#authView h2{text-align:center;font-size:1.65rem;letter-spacing:-.045em;margin:0 0 7px}
+#authView .intro{text-align:center;color:var(--muted);font-size:.92rem;margin:0 auto 24px;max-width:520px}
+#authView .panel{max-width:650px;margin:0 auto 16px;padding:22px}
+#authView .panel h3{font-size:1rem;color:var(--blue)}
+#registerBtn{width:100%;margin-top:5px}
+#authView .panel:last-of-type button{width:100%;margin-top:4px}
+#appView>.row:first-of-type{background:#f7faff;border:1px solid #e6edf7;border-radius:12px;padding:12px 14px;margin-bottom:16px!important}
+#accountSummary{flex:1}
+#feedTab>.row,#chatTab>.row{margin:8px 0 12px}
+#feedTab>.row h2,#chatTab>.row h2{margin:0}
+#postText,#messageText{background:#fbfcff}
+@media(min-width:760px){
+  #authView{padding:34px 0 44px}
+  #authView>.panel{max-width:none}
+  #authView{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+  #authView h2,#authView .intro,#authView #authMessage,#authView #otpPanel{grid-column:1/-1}
+  #authView .panel{margin-bottom:0;align-self:start}
+  #authView .panel:first-of-type{grid-column:1}
+  #authView .panel:nth-of-type(2){grid-column:2}
+}
+@media(max-width:600px){
+  body{padding:0;background:var(--page)}
+  .app{min-height:100vh;border:0;border-radius:0;box-shadow:none}
+  header{padding:17px 18px}
+  header h1{font-size:1.05rem}
+  .content{padding:18px 15px}
+  .panel{padding:16px;border-radius:14px}
+  .row{gap:8px}
+  nav{gap:5px;padding:5px}
+  nav button{min-width:calc(50% - 5px);font-size:.8rem;padding:10px 6px}
+  .message{max-width:92%}
+  #authView h2{font-size:1.4rem}
+  #authView .panel{padding:17px}
+}
+
+</style>
 </head>
 <body>
+<div class="app">
+<header><div><h1>✦ Nabwiso Family Portal</h1><small>Connected by family. United for tomorrow.</small></div><div id="memberLabel">Guest</div></header>
+<main class="content">
+<section id="authView">
+  <h2>Welcome to the family</h2><p class="intro">A shared space to connect, celebrate our stories and stay close wherever life takes us.</p>
+  <div class="panel">
+    <h3>Create account</h3>
+    <label>Full name</label><input id="regName" autocomplete="name" placeholder="Your full name">
+    <label>Phone number (include country code)</label><input id="regPhone" type="tel" autocomplete="tel" placeholder="+256700000000">
+    <label>Father's name</label><input id="regFather" placeholder="Father's name">
+    <label>Mother's name</label><input id="regMother" placeholder="Mother's name">
+    <label>Date of birth</label><input id="regDob" type="date">
+    <label>Gender</label><select id="regSec"><option>Male</option><option>Female</option><option>Other</option></select>
+    <label>Password (at least 8 characters)</label><input id="regPassword" type="password" autocomplete="new-password" placeholder="Create a password">
+    <button id="registerBtn" onclick="registerUser()">Create account</button>
+  </div>
+  <div class="panel">
+    <h3>Already a member? Log in</h3>
+    <label>Phone number (include country code)</label><input id="loginPhone" type="tel" autocomplete="tel" placeholder="+256700000000">
+    <label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password">
+    <button onclick="loginUser()">Log in</button>
+  </div>
+  <div id="authMessage" class="status hidden" role="status"></div>
+  <div id="otpPanel" class="panel hidden">
+    <h3>Verify your phone</h3><p class="muted">Enter the SMS code sent to your phone.</p>
+    <input id="otpCode" inputmode="numeric" placeholder="SMS verification code">
+    <button onclick="verifyPhone()">Verify phone</button>
+  </div>
+</section>
 
-    <!-- Main App Container -->
-    <div class="app-container">
-        
-        <!-- INITIAL AUTH GATEWAY -->
-        <div id="authGateway">
-            <div style="margin-bottom: 15px; display: flex; justify-content: center;">
-                <img src="nabwiso.jpg" alt="Logo" class="auth-logo" style="width: 70px; height: 70px;" onerror="this.src='https://via.placeholder.com/70/0047ab/FFFFFF?text=N'">
-            </div>
-            <h2 class="auth-title" style="font-size: 1.5rem;">Nabwiso Family Portal</h2>
-            <p class="auth-subtitle" style="font-size: 0.85rem; margin-bottom: 25px;">Welcome! Please choose an option below to continue to the family network.</p>
-            
-            <button class="auth-gateway-btn" onclick="showLoginScreen()">🔐 Log In</button>
-            <button class="auth-gateway-btn secondary" onclick="showRegisterScreen()">✨ Create Account</button>
-        </div>
+<section id="appView" class="hidden">
+  <div id="notice" class="status hidden"></div>
+  <div class="row" style="margin-bottom:12px"><div id="accountSummary" class="muted"></div><button class="secondary" onclick="logoutUser()">Log out</button></div>
+  <nav>
+    <button onclick="showTab('feed')">Family feed</button>
+    <button onclick="showTab('chat')">Chat</button>
+    <button onclick="showTab('profile')">Profile</button>
+    <button id="adminTab" class="hidden" onclick="showTab('admin')">Admin</button>
+  </nav>
 
-        <!-- LOGIN SCREEN OVERLAY -->
-        <div id="loginScreen" class="auth-screen-panel">
-            <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center;">
-                <img src="nabwiso.jpg" alt="Logo" class="auth-logo" onerror="this.src='https://via.placeholder.com/50/0047ab/FFFFFF?text=N'">
-            </div>
-            <h2 class="auth-title">Welcome Back</h2>
-            <p class="auth-subtitle">Log in with your phone number and password</p>
-
-            <div class="auth-form-group">
-                <label>Phone Number</label>
-                <input type="tel" id="loginPhone" placeholder="e.g., +256 700 000000">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Password</label>
-                <input type="password" id="loginPassword" placeholder="Enter your password">
-            </div>
-
-            <button class="auth-btn" onclick="loginUser()">Log In to Portal</button>
-            <button onclick="backToGateway()" style="background: none; border: none; color: #0047ab; font-size: 0.8rem; cursor: pointer; margin-top: 15px; text-decoration: underline;">← Back to Gateway</button>
-        </div>
-
-        <!-- ACCOUNT CREATION SCREEN OVERLAY -->
-        <div id="authScreen" class="auth-screen-panel">
-            <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center;">
-                <img src="nabwiso.jpg" alt="Logo" class="auth-logo" onerror="this.src='https://via.placeholder.com/50/0047ab/FFFFFF?text=N'">
-            </div>
-            <h2 class="auth-title">Nabwiso Family App</h2>
-            <p class="auth-subtitle">Create your family profile to join the network</p>
-            
-            <div class="auth-form-group">
-                <label>Profile Picture</label>
-                <input type="file" id="regAvatar" accept="image/*" style="font-size: 0.75rem;">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Full Name</label>
-                <input type="text" id="regName" placeholder="e.g., Bright Nabwiso">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Phone Number</label>
-                <input type="tel" id="regPhone" placeholder="e.g., +256 700 000000">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Father's Name</label>
-                <input type="text" id="regFather" placeholder="e.g., Nabwiso Richard">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Mother's Name</label>
-                <input type="text" id="regMother" placeholder="e.g., Nabirye Letisha">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Date of Birth</label>
-                <input type="date" id="regDob">
-            </div>
-
-            <div class="auth-form-group">
-                <label>Gender / Section (Sec)</label>
-                <select id="regSec">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <div class="auth-form-group">
-                <label>Password</label>
-                <input type="password" id="regPassword" placeholder="Create a password">
-            </div>
-
-            <button class="auth-btn" onclick="registerUser()">Enter Family Portal</button>
-            <button onclick="backToGateway()" style="background: none; border: none; color: #0047ab; font-size: 0.8rem; cursor: pointer; margin-top: 15px; text-decoration: underline;">← Back to Gateway</button>
-        </div>
-
-        <!-- Static Header -->
-        <header class="app-header">
-            <div class="logo-area" onclick="switchTab('feed')">
-                <img src="nabwiso.jpg" alt="Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/30/FFFFFF/0047ab?text=N'">
-                <h1 class="app-title">Nabwiso</h1>
-            </div>
-            <div class="profile-badge-container">
-                <div class="profile-badge" onclick="toggleProfileDropdown()">
-                    <img src="" id="headerAvatarImg" class="header-avatar" style="display:none;">
-                    <span id="headerProfileName">👤 Member</span>
-                </div>
-                <div class="profile-dropdown" id="profileDropdownMenu">
-                    <button onclick="openProfileModal()">👤 View Profile</button>
-                    <button onclick="switchTab('settings')">⚙️ Settings</button>
-                    <button onclick="logoutUser()" style="color: #c53030;">🚪 Log Out</button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Scrollable Content Body -->
-        <div class="content-body">
-            
-            <!-- Pending Verification Lock Overlay -->
-            <div id="pendingLockOverlay">
-                <div style="font-size: 2.5rem; margin-bottom: 10px;">⏳</div>
-                <h3 style="color: #0047ab; margin-top: 0; font-size: 1.1rem;">Verification Pending</h3>
-                <p style="font-size: 0.85rem; color: #555; line-height: 1.4; margin-bottom: 15px;">
-                    Your account registration request has been submitted. You cannot view posts, chat, or create posts until the admin admits and verifies your profile.
-                </p>
-                <button onclick="openHistoryModal()" class="history-btn" style="border: 1px solid #0047ab;">Open Admin & History</button>
-            </div>
-
-            <!-- Navigation Links -->
-            <nav class="nav-links" id="mainNavLinks">
-                <a onclick="switchTab('chat')" id="nav-chat">Chat</a>
-                <a onclick="switchTab('videos')" id="nav-videos">Videos</a>
-                <a onclick="switchTab('photos')" id="nav-photos">Photos</a>
-                <a onclick="switchTab('stories')" id="nav-stories">Stories</a>
-            </nav>
-
-            <!-- FEED VIEW -->
-            <div id="view-feed" class="dynamic-page-view active">
-                <div class="search-container">
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Search posts, videos, descriptions..." onkeyup="filterPosts()">
-                        <span>🔍</span>
-                    </div>
-                </div>
-
-                <div class="create-post-box">
-                    <textarea id="postInput" rows="2" placeholder="Share a story, caption your photo/video..."></textarea>
-                    <input type="file" id="fileInput" style="margin-bottom: 8px; font-size: 0.75rem; width: 100%;" accept="image/*,video/*">
-
-                    <div class="post-controls">
-                        <select id="postTypeSelect" onchange="toggleFileSelector()">
-                            <option value="text">📝 Story / Text</option>
-                            <option value="photo">📷 Photo</option>
-                            <option value="video">🎥 Video</option>
-                        </select>
-                        <button class="post-btn-submit" onclick="createNewPost()">Post</button>
-                    </div>
-                </div>
-
-                <div class="post-label">Post</div>
-                <div class="sub-heading">Recently added posts</div>
-
-                <div id="postsContainer">
-                    <div class="post-card" data-post="family gathering memory" data-type="photo">
-                        <div class="post-header-row">
-                            <div class="post-avatar" style="background:#0047ab; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">B</div>
-                            <div class="post-info">
-                                <span>Bright <span class="verified-badge">✔</span></span>
-                                <span class="post-time">28/9/2026 at 12:25</span>
-                            </div>
-                        </div>
-                        <div class="post-text-content">Family gathering memory!</div>
-                        <div class="media-display-box" style="background: #eaf2f8; height: 80px; display: flex; align-items: center; justify-content: center; color: #555;">
-                            <span>📷 Photo Placeholder</span>
-                        </div>
-                        <div class="post-actions">
-                            <button onclick="toggleComments(this)">Comment (<span class="comment-count">0</span>)</button>
-                            <button onclick="likePost(this)">likes (<span class="like-count">0</span>)</button>
-                            <button onclick="toggleShareMenu(this)">share</button>
-                            <button onclick="downloadMedia(this)">Download</button>
-                        </div>
-                        <div class="share-menu">
-                            <a href="#" onclick="shareToPlatform(event, 'whatsapp', this)">💬 WhatsApp</a>
-                            <a href="#" onclick="shareToPlatform(event, 'twitter', this)">🐦 X (Twitter)</a>
-                            <a href="#" onclick="shareToPlatform(event, 'instagram', this)">📸 Instagram</a>
-                            <button onclick="copyLink(this)">🔗 Copy Link</button>
-                        </div>
-                        <div class="comments-section">
-                            <div class="comments-list"></div>
-                            <div class="comment-input-area">
-                                <input type="text" placeholder="Write a comment..." class="comment-text-input">
-                                <button onclick="addComment(this)">Send</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CHAT PAGE VIEW -->
-            <div id="view-chat" class="dynamic-page-view">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <h2 style="font-size: 1.05rem; color: #0047ab; margin: 0;">Family Chat Room</h2>
-                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
-                </div>
-                
-                <div class="chat-room-container">
-                    <div id="chatMessagesBox" class="chat-messages-box">
-                        <div class="chat-bubble theirs">
-                            <div class="chat-sender-name">Breitte</div>
-                            Hello family! Use the record button or attachment menu below to share voice notes & media.
-                        </div>
-                    </div>
-
-                    <!-- WhatsApp Attachment Popup Menu -->
-                    <div id="chatAttachMenu" class="chat-attach-menu">
-                        <label>📷 Photo <input type="file" id="chatPhotoInput" accept="image/*" style="display:none;" onchange="sendChatMedia('photo')"></label>
-                        <label>🎥 Video <input type="file" id="chatVideoInput" accept="video/*" style="display:none;" onchange="sendChatMedia('video')"></label>
-                        <label>🎙️ Audio/Voice Note <input type="file" id="chatAudioInput" accept="audio/*" style="display:none;" onchange="sendChatMedia('audio')"></label>
-                        <label>📄 Document <input type="file" id="chatDocInput" accept=".pdf,.doc,.docx,.txt,.xls,.xlsx" style="display:none;" onchange="sendChatMedia('document')"></label>
-                    </div>
-
-                    <!-- Compact Chat Input Toolbar -->
-                    <div class="chat-input-toolbar">
-                        <button class="chat-attach-btn" onclick="toggleChatAttachMenu()" title="Attach File">📎</button>
-                        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="handleChatKeyPress(event)">
-                        
-                        <button onclick="startCall('audio')" title="Voice Call" style="background:none; border:none; font-size:0.9rem; cursor:pointer; padding:1px; flex-shrink:0;">📞</button>
-                        <button onclick="startCall('video')" title="Video Call" style="background:none; border:none; font-size:0.9rem; cursor:pointer; padding:1px; flex-shrink:0;">🎥</button>
-
-                        <!-- Reliable Voice Record Button -->
-                        <button id="voiceRecordBtn" 
-                                title="Click to record voice note" 
-                                style="background: #0047ab; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; flex-shrink: 0;"
-                                onclick="toggleVoiceRecording()">🎙️</button>
-                        
-                        <!-- Send Button -->
-                        <button class="chat-send-btn" onclick="sendChatMessage()" title="Send Text">➤</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIDEOS PAGE VIEW -->
-            <div id="view-videos" class="dynamic-page-view">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Family Videos</h2>
-                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
-                </div>
-                <div id="videosContainer"></div>
-            </div>
-
-            <!-- PHOTOS PAGE VIEW -->
-            <div id="view-photos" class="dynamic-page-view">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Family Photos</h2>
-                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
-                </div>
-                <div id="photosContainer"></div>
-            </div>
-
-            <!-- STORIES PAGE VIEW -->
-            <div id="view-stories" class="dynamic-page-view">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Family Stories</h2>
-                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
-                </div>
-                <div id="storiesContainer"></div>
-            </div>
-
-            <!-- SETTINGS PAGE VIEW -->
-            <div id="view-settings" class="dynamic-page-view">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 style="font-size: 1.1rem; color: #0047ab; margin: 0;">Account Settings</h2>
-                    <button onclick="switchTab('feed')" class="history-btn" style="padding: 2px 10px; font-size: 0.75rem; border: 1px solid #0047ab;">← Back</button>
-                </div>
-                
-                <div style="background: #f4f8fb; border: 1px solid #b3d1ff; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-                    <h3 style="font-size: 0.9rem; color: #0047ab; margin: 0 0 8px 0;">Change Profile Photo</h3>
-                    <input type="file" id="updateAvatarInput" accept="image/*" style="font-size: 0.75rem; margin-bottom: 6px; width: 100%;">
-                    <button onclick="updateProfilePhoto()" style="background: #0047ab; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Update Photo</button>
-                </div>
-
-                <div style="background: #f4f8fb; border: 1px solid #b3d1ff; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-                    <h3 style="font-size: 0.9rem; color: #0047ab; margin: 0 0 8px 0;">Change Password</h3>
-                    <input type="password" id="currentPasswordInput" placeholder="Current password" style="width: 100%; padding: 6px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; margin-bottom: 6px; box-sizing: border-box; outline: none;">
-                    <input type="password" id="newPasswordInput" placeholder="New password" style="width: 100%; padding: 6px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; margin-bottom: 8px; box-sizing: border-box; outline: none;">
-                    <button onclick="changePassword()" style="background: #0047ab; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Update Password</button>
-                </div>
-
-                <div style="background: #fff5f5; border: 1px solid #feb2b2; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-                    <h3 style="font-size: 0.9rem; color: #c53030; margin: 0 0 6px 0;">Log Out Session</h3>
-                    <button onclick="logoutUser()" style="background: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">Log Out</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Static Footer -->
-        <footer class="app-footer">
-            <p class="motto">To share ideas and unity.</p>
-            <button class="history-btn" onclick="openHistoryModal()">View & History</button>
-        </footer>
+  <section id="feedTab">
+    <div class="panel">
+      <h2>Share with family</h2>
+      <textarea id="postText" placeholder="Write a message or caption..."></textarea>
+      <select id="postType"><option value="text">Text / story</option><option value="photo">Photo</option><option value="video">Video</option></select>
+      <input id="postFile" type="file" accept="image/*,video/*">
+      <button onclick="createPost()">Publish post</button>
     </div>
+    <div class="row"><h2>Recent family posts</h2><button class="secondary" onclick="loadPosts()">Refresh</button></div>
+    <div id="postsList"></div>
+  </section>
 
-    <!-- Active Call / Video Call Modal Popup -->
-    <div id="callOverlay">
-        <h3 id="callTitle" style="margin-top: 0; font-size: 1.2rem;">Nabwiso Family Call</h3>
-        <div class="call-avatar-container" id="callAvatarBox">
-            <span>👤</span>
-        </div>
-        <p id="callStatusText" style="font-size: 0.85rem; margin-bottom: 20px; opacity: 0.8;">Connecting...</p>
-        <button onclick="endActiveCall()" style="background: #e53e3e; color: white; border: none; padding: 10px 24px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer;">End Call 🔴</button>
+  <section id="chatTab" class="hidden">
+    <div class="row"><h2>Family chat</h2><button class="secondary" onclick="loadMessages()">Refresh</button></div>
+    <div id="messagesList" class="panel" style="min-height:180px"></div>
+    <div class="panel">
+      <textarea id="messageText" placeholder="Write a family message..." style="min-height:55px"></textarea>
+      <input id="messageFile" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx">
+      <button onclick="sendMessage()">Send message</button>
     </div>
+  </section>
 
-    <!-- History & Admin Modal Popup -->
-    <div id="historyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center;">
-        <div style="background: white; width: 320px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); color: #003366; max-height: 80vh; overflow-y: auto;">
-            <h3 style="margin-top: 0; color: #0047ab; font-size: 1.1rem;">Nabwiso Family History & Admin</h3>
-            
-            <div id="historyRecordsList" style="font-size: 0.8rem; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="background: #f4f8fb; padding: 8px; border-radius: 4px; border: 1px solid #b3d1ff;">
-                    <b>Founding Era:</b> Established with deep roots and unity values across generations.
-                </div>
-            </div>
-
-            <div id="adminLoginSection" style="border-top: 1px solid #d0e1fd; padding-top: 10px; margin-bottom: 10px;">
-                <label style="font-size: 0.75rem; font-weight: 600; color: #555;">Are you the administrator? Enter password to verify members:</label>
-                <div style="display: flex; gap: 5px; margin-top: 4px;">
-                    <input type="password" id="adminPasswordInput" placeholder="Admin passcode" style="flex: 1; padding: 5px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; outline: none;">
-                    <button onclick="verifyAdmin()" style="background: #0047ab; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Unlock</button>
-                </div>
-            </div>
-
-            <div id="historyEditForm" style="border-top: 1px solid #d0e1fd; padding-top: 10px; display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 0.8rem; font-weight: 600; color: green;">🔓 Admin Mode Active</span>
-                    <button onclick="lockAdmin()" style="background: none; border: none; color: #d9534f; font-size: 0.75rem; cursor: pointer; text-decoration: underline;">Lock</button>
-                </div>
-                
-                <h4 style="font-size: 0.85rem; color: #0047ab; margin: 8px 0 4px 0;">Pending Member Verifications</h4>
-                <div id="adminPendingList" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
-                    <p style="font-size: 0.75rem; color: #555;">No pending registrations.</p>
-                </div>
-
-                <h4 style="font-size: 0.85rem; color: #0047ab; margin: 8px 0 4px 0;">Add History Record</h4>
-                <input type="text" id="historyTitleInput" placeholder="Title (e.g., Family Reunion 2026)" style="width: 100%; padding: 6px; margin: 4px 0 8px 0; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; box-sizing: border-box;">
-                <textarea id="historyDescInput" rows="2" placeholder="Write history details..." style="width: 100%; padding: 6px; border: 1px solid #b3d1ff; border-radius: 4px; font-size: 0.8rem; resize: none; box-sizing: border-box; margin-bottom: 8px;"></textarea>
-                
-                <div style="display: flex; justify-content: space-between;">
-                    <button onclick="addHistoryRecord()" style="background: #0047ab; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Add Entry</button>
-                    <button onclick="closeHistoryModal()" style="background: #ccc; color: #333; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Close</button>
-                </div>
-            </div>
-
-            <div id="closeOnlySection" style="text-align: right; border-top: 1px solid #d0e1fd; padding-top: 10px;">
-                <button onclick="closeHistoryModal()" style="background: #ccc; color: #333; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Close</button>
-            </div>
-        </div>
+  <section id="profileTab" class="hidden">
+    <div class="panel"><h2>My family profile</h2>
+      <label>Full name</label><input id="profileName">
+      <label>Father's name</label><input id="profileFather">
+      <label>Mother's name</label><input id="profileMother">
+      <label>Date of birth</label><input id="profileDob" type="date">
+      <label>Gender</label><select id="profileSec"><option>Male</option><option>Female</option><option>Other</option></select>
+      <label>Profile picture</label><input id="profilePhoto" type="file" accept="image/*">
+      <button onclick="saveProfile()">Save profile</button>
     </div>
-
-    <!-- JavaScript logic -->
-    <script>
-        // Initialize Supabase Connection
-        const SUPABASE_URL = 'https://dltwgxieaonbnhmsvptv.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_0LjvAXbDh9z054JnElkD6Q_ZPjjkGGd';
-        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const ADMIN_PASSCODE = "@admin.B22";
-        
-        let registeredUsersDatabase = [
-            {
-                name: "Bright Nabwiso",
-                phone: "+256 700 000000",
-                father: "Nabwiso Richard",
-                mother: "Nabirye Letisha",
-                dob: "1998-05-12",
-                sec: "Male",
-                password: "password123",
-                avatar: "",
-                isVerified: true
-            }
-        ];
-
-        let currentUser = {
-            name: "Member",
-            phone: "",
-            father: "",
-            mother: "",
-            dob: "",
-            sec: "",
-            password: "",
-            avatar: "",
-            isVerified: false
-        };
-
-        function showLoginScreen() {
-            document.getElementById('authGateway').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-        }
-
-        function showRegisterScreen() {
-            document.getElementById('authGateway').style.display = 'none';
-            document.getElementById('authScreen').style.display = 'flex';
-        }
-
-        function backToGateway() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('authGateway').style.display = 'flex';
-        }
-
-        async function loginUser() {
-            let phone = document.getElementById('loginPhone').value.trim();
-            let password = document.getElementById('loginPassword').value;
-
-            if (phone === "" || password === "") {
-                alert("Please enter both your phone number and password.");
-                return;
-            }
-
-            const { data: foundUsers, error } = await _supabase
-                .from('users')
-                .select('*')
-                .eq('phone', phone)
-                .eq('password', password);
-
-            if (error) {
-                alert("Database error during login: " + error.message);
-                return;
-            }
-
-            if (foundUsers && foundUsers.length > 0) {
-                currentUser = foundUsers[0];
-                currentUser.isVerified = currentUser.is_verified !== undefined ? currentUser.is_verified : true;
-
-                document.getElementById('headerProfileName').innerText = currentUser.name.split(' ')[0];
-                let headerAvatar = document.getElementById('headerAvatarImg');
-                if (currentUser.avatar && currentUser.avatar !== "") {
-                    headerAvatar.src = currentUser.avatar;
-                    headerAvatar.style.display = 'block';
-                } else {
-                    headerAvatar.style.display = 'none';
-                }
-
-                document.getElementById('loginScreen').style.display = 'none';
-                updateVerificationUI();
-                alert(`Welcome back, ${currentUser.name}!`);
-            } else {
-                alert("Invalid phone number or password, or account does not exist.");
-            }
-        }
-
-        async function registerUser() {
-            let name = document.getElementById('regName').value.trim();
-            let phone = document.getElementById('regPhone').value.trim();
-            let father = document.getElementById('regFather').value.trim();
-            let mother = document.getElementById('regMother').value.trim();
-            let dob = document.getElementById('regDob').value;
-            let sec = document.getElementById('regSec').value;
-            let password = document.getElementById('regPassword').value;
-            let avatarInput = document.getElementById('regAvatar');
-
-            if (name === "" || phone === "" || father === "" || mother === "" || dob === "" || password === "") {
-                alert("Please fill in all account creation details including password!");
-                return;
-            }
-
-            let avatarUrl = "";
-            if (avatarInput.files && avatarInput.files[0]) {
-                avatarUrl = URL.createObjectURL(avatarInput.files[0]);
-            }
-
-            // Generate a unique numeric ID using current timestamp to bypass identity/null issues completely
-            const uniqueId = Math.floor(Date.now() / 1000);
-
-            const { error } = await _supabase
-                .from('users')
-                .insert([{ 
-                    id: uniqueId, 
-                    name: name, 
-                    phone: phone, 
-                    password: password, 
-                    father: father, 
-                    mother: mother, 
-                    dob: dob, 
-                    sec: sec, 
-                    avatar: avatarUrl || null,
-                    is_verified: false 
-                }]);
-
-            if (error) {
-                alert("Error saving account to Supabase: " + error.message);
-                return;
-            }
-
-            currentUser = { name, phone, father, mother, dob, sec, password, avatar: avatarUrl, isVerified: false };
-            registeredUsersDatabase.push(currentUser);
-
-            document.getElementById('headerProfileName').innerText = name.split(' ')[0];
-            let headerAvatar = document.getElementById('headerAvatarImg');
-            if (avatarUrl !== "") {
-                headerAvatar.src = avatarUrl;
-                headerAvatar.style.display = 'block';
-            }
-
-            document.getElementById('authScreen').style.display = 'none';
-            updateVerificationUI();
-            alert("Account created and saved to Supabase successfully! Status is Pending Verification.");
-        }
-
-        function updateVerificationUI() {
-            let overlay = document.getElementById('pendingLockOverlay');
-            overlay.style.display = currentUser.isVerified ? 'none' : 'flex';
-        }
-
-        function toggleProfileDropdown() {
-            let dropdown = document.getElementById('profileDropdownMenu');
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.closest('.profile-badge-container')) {
-                let dropdown = document.getElementById('profileDropdownMenu');
-                if (dropdown) dropdown.style.display = 'none';
-            }
-            if (!event.target.closest('.chat-input-toolbar')) {
-                let attachMenu = document.getElementById('chatAttachMenu');
-                if (attachMenu) attachMenu.style.display = 'none';
-            }
-        };
-
-        function openProfileModal() {
-            let statusText = currentUser.isVerified ? "✔ Verified Member" : "⏳ Pending Verification";
-            alert(`Profile Details:\nName: ${currentUser.name}\nStatus: ${statusText}\nPhone: ${currentUser.phone}\nFather: ${currentUser.father}\nMother: ${currentUser.mother}\nDOB: ${currentUser.dob}\nSec: ${currentUser.sec}`);
-            document.getElementById('profileDropdownMenu').style.display = 'none';
-        }
-
-        function switchTab(tabName) {
-            if (!currentUser.isVerified && tabName !== 'settings') {
-                alert("Access restricted! Please wait for the admin to admit and verify your account first.");
-                return;
-            }
-
-            document.querySelectorAll('.dynamic-page-view').forEach(view => {
-                view.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.classList.remove('active');
-            });
-
-            let dropdown = document.getElementById('profileDropdownMenu');
-            if (dropdown) dropdown.style.display = 'none';
-
-            let mainNavLinks = document.getElementById('mainNavLinks');
-            if (tabName === 'chat') {
-                mainNavLinks.style.display = 'none';
-            } else {
-                mainNavLinks.style.display = 'flex';
-            }
-
-            if (tabName === 'feed') {
-                document.getElementById('view-feed').classList.add('active');
-            } else {
-                document.getElementById('view-' + tabName).classList.add('active');
-                let navLink = document.getElementById('nav-' + tabName);
-                if (navLink) navLink.classList.add('active');
-                
-                if (tabName === 'videos') renderVideosGallery();
-                else if (tabName === 'photos') renderPhotosGallery();
-                else if (tabName === 'stories') renderStoriesGallery();
-            }
-        }
-
-        function toggleFileSelector() {
-            let postType = document.getElementById('postTypeSelect').value;
-            let fileInput = document.getElementById('fileInput');
-            let postInput = document.getElementById('postInput');
-
-            fileInput.style.display = (postType === 'text') ? 'none' : 'block';
-
-            if (postType === 'video') {
-                postInput.placeholder = "🎥 Required: Describe what this video is about...";
-            } else if (postType === 'photo') {
-                postInput.placeholder = "Caption this photo (optional)...";
-            } else {
-                postInput.placeholder = "Share a story, caption your photo/video...";
-            }
-        }
-        toggleFileSelector();
-
-        function likePost(buttonElement) {
-            if (!currentUser.isVerified) return;
-            let countSpan = buttonElement.querySelector('.like-count');
-            countSpan.innerText = parseInt(countSpan.innerText) + 1;
-        }
-
-        function toggleComments(buttonElement) {
-            if (!currentUser.isVerified) return;
-            let postCard = buttonElement.closest('.post-card');
-            let commentsSection = postCard.querySelector('.comments-section');
-            commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function addComment(buttonElement) {
-            if (!currentUser.isVerified) return;
-            let postCard = buttonElement.closest('.post-card');
-            let inputField = postCard.querySelector('.comment-text-input');
-            let commentText = inputField.value.trim();
-            if (commentText === "") return;
-
-            let commentsList = postCard.querySelector('.comments-list');
-            let newComment = document.createElement('div');
-            newComment.className = 'comment-item';
-            newComment.innerHTML = `<b>${currentUser.name}:</b> ${commentText}`;
-            commentsList.appendChild(newComment);
-
-            let countSpan = postCard.querySelector('.comment-count');
-            countSpan.innerText = parseInt(countSpan.innerText) + 1;
-            inputField.value = "";
-            commentsList.scrollTop = commentsList.scrollHeight;
-        }
-
-        function toggleShareMenu(buttonElement) {
-            if (!currentUser.isVerified) return;
-            let postCard = buttonElement.closest('.post-card');
-            let shareMenu = postCard.querySelector('.share-menu');
-            shareMenu.style.display = shareMenu.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function shareToPlatform(event, platform, element) {
-            event.preventDefault();
-            let postCard = element.closest('.post-card');
-            let textContent = postCard.querySelector('.post-text-content');
-            let text = textContent ? textContent.innerText : "Nabwiso Family App";
-            let url = window.location.href;
-
-            if (platform === 'whatsapp') {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank');
-            } else if (platform === 'twitter') {
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-            } else if (platform === 'instagram') {
-                alert("Content copied to clipboard for Instagram sharing.");
-                navigator.clipboard.writeText(text + " " + url);
-            }
-            postCard.querySelector('.share-menu').style.display = 'none';
-        }
-
-        function copyLink(buttonElement) {
-            navigator.clipboard.writeText(window.location.href);
-            alert("Post link copied to clipboard!");
-            buttonElement.closest('.post-card').querySelector('.share-menu').style.display = 'none';
-        }
-
-        function downloadMedia(buttonElement) {
-            if (!currentUser.isVerified) return;
-            let mediaElement = buttonElement.closest('.post-card').querySelector('img, video');
-            if (mediaElement) {
-                let a = document.createElement('a');
-                a.href = mediaElement.src;
-                a.download = 'NabwisoFamily_Media';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            } else {
-                alert("No media file attached to download.");
-            }
-        }
-
-        let mediaRecorder;
-        let audioChunks = [];
-        let isRecording = false;
-        let activeAudioStream = null;
-
-        async function toggleVoiceRecording() {
-            if (!currentUser.isVerified) {
-                alert("You must be verified to send voice notes!");
-                return;
-            }
-
-            let btn = document.getElementById('voiceRecordBtn');
-
-            if (!isRecording) {
-                try {
-                    audioChunks = [];
-                    activeAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(activeAudioStream);
-                    
-                    mediaRecorder.ondataavailable = event => {
-                        if (event.data && event.data.size > 0) {
-                            audioChunks.push(event.data);
-                        }
-                    };
-
-                    mediaRecorder.onstop = async () => {
-                        let audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        let audioUrl = URL.createObjectURL(audioBlob);
-                        
-                        await _supabase.from('messages').insert([{
-                            sender_name: currentUser.name,
-                            recipient_name: 'Everyone',
-                            message_content: '[Voice Note]',
-                            media_url: audioUrl
-                        }]);
-
-                        appendChatBubble(currentUser.name, audioUrl, 'audio', 'Voice Note');
-                        if (activeAudioStream) {
-                            activeAudioStream.getTracks().forEach(track => track.stop());
-                        }
-                    };
-
-                    mediaRecorder.start();
-                    isRecording = true;
-                    btn.style.background = '#e53e3e';
-                    btn.innerText = '⏹️';
-                    btn.title = "Click to stop recording";
-                } catch (err) {
-                    console.warn("Direct microphone recording prevented by browser file security. Switching to prompt fallback.", err);
-                    
-                    let fallbackAction = prompt("Direct browser microphone access is restricted in local file mode (file://).\n\nType '1' to upload an audio recording file from your device, or '2' to instantly send a simulated text-to-speech voice notification banner.");
-                    
-                    if (fallbackAction === '1') {
-                        document.getElementById('chatAudioInput').click();
-                    } else if (fallbackAction === '2') {
-                        let simText = "🎙️ [Simulated Voice Note: Hello family, checking in!]";
-                        await _supabase.from('messages').insert([{
-                            sender_name: currentUser.name,
-                            recipient_name: 'Everyone',
-                            message_content: simText
-                        }]);
-                        appendChatBubble(currentUser.name, simText, 'text', '');
-                    }
-                    isRecording = false;
-                    btn.style.background = '#0047ab';
-                    btn.innerText = '🎙️';
-                }
-            } else {
-                isRecording = false;
-                btn.style.background = '#0047ab';
-                btn.innerText = '🎙️';
-                btn.title = "Click to record voice note";
-                
-                if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                    mediaRecorder.stop();
-                }
-            }
-        }
-
-        let activeCallStream = null;
-
-        async function startCall(type) {
-            if (!currentUser.isVerified) {
-                alert("You must be verified to start calls!");
-                return;
-            }
-
-            let callOverlay = document.getElementById('callOverlay');
-            let callTitle = document.getElementById('callTitle');
-            let callAvatarBox = document.getElementById('callAvatarBox');
-            let callStatusText = document.getElementById('callStatusText');
-
-            callTitle.innerText = type === 'video' ? 'Nabwiso Family Video Call' : 'Nabwiso Family Voice Call';
-            callStatusText.innerText = "Connecting to family network...";
-            callOverlay.style.display = 'flex';
-
-            if (type === 'video') {
-                try {
-                    activeCallStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    callAvatarBox.innerHTML = '<video autoplay playsinline muted></video>';
-                    let videoElem = callAvatarBox.querySelector('video');
-                    videoElem.srcObject = activeCallStream;
-                    callStatusText.innerText = "Connected 🟢 (Live Camera Stream Active)";
-                } catch (err) {
-                    console.warn("Camera hardware access failed or blocked:", err);
-                    callAvatarBox.innerHTML = '<span style="font-size:2.2rem;">👥</span>';
-                    callStatusText.innerText = "Connected 🟢 (Family Virtual Video Stream)";
-                }
-            } else {
-                callAvatarBox.innerHTML = '<span style="font-size:2.2rem;">📞</span>';
-                callStatusText.innerText = "Connected 🟢 (Secure Audio Channel Active)";
-            }
-        }
-
-        function endActiveCall() {
-            if (activeCallStream) {
-                activeCallStream.getTracks().forEach(track => track.stop());
-                activeCallStream = null;
-            }
-            document.getElementById('callOverlay').style.display = 'none';
-        }
-
-        function toggleChatAttachMenu() {
-            if (!currentUser.isVerified) return;
-            let menu = document.getElementById('chatAttachMenu');
-            menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') sendChatMessage();
-        }
-
-        async function sendChatMessage() {
-            if (!currentUser.isVerified) return;
-            let input = document.getElementById('chatInput');
-            let msgText = input.value.trim();
-            if (msgText === "") return;
-
-            const { error } = await _supabase
-                .from('messages')
-                .insert([{ 
-                    sender_name: currentUser.name, 
-                    recipient_name: 'Everyone', 
-                    message_content: msgText 
-                }]);
-
-            if (error) {
-                alert("Error sending message to Supabase: " + error.message);
-                return;
-            }
-
-            appendChatBubble(currentUser.name, msgText, 'text', '');
-            input.value = "";
-        }
-
-        async function sendChatMedia(type) {
-            let fileInputId = type === 'video' ? 'chatVideoInput' : type === 'audio' ? 'chatAudioInput' : type === 'document' ? 'chatDocInput' : 'chatPhotoInput';
-            let fileInput = document.getElementById(fileInputId);
-            if (fileInput.files && fileInput.files[0]) {
-                let file = fileInput.files[0];
-                let fileUrl = URL.createObjectURL(file);
-
-                const { error } = await _supabase
-                    .from('messages')
-                    .insert([{ 
-                        sender_name: currentUser.name, 
-                        recipient_name: 'Everyone', 
-                        message_content: `[${type.toUpperCase()}]`, 
-                        media_url: fileUrl 
-                    }]);
-
-                if (error) {
-                    alert("Error sending media to Supabase: " + error.message);
-                    return;
-                }
-
-                appendChatBubble(currentUser.name, fileUrl, type, file.name);
-                fileInput.value = "";
-                document.getElementById('chatAttachMenu').style.display = 'none';
-            }
-        }
-
-        function appendChatBubble(senderName, content, type, metaName) {
-            let chatBox = document.getElementById('chatMessagesBox');
-            let bubble = document.createElement('div');
-            bubble.className = "chat-bubble mine";
-
-            let verifiedCheck = currentUser.isVerified ? '<span class="verified-badge">✔</span>' : '';
-            let innerHTML = `<div class="chat-sender-name">${senderName} ${verifiedCheck}</div>`;
-
-            if (type === 'text') innerHTML += `<span>${content}</span>`;
-            else if (type === 'photo') innerHTML += `<img src="${content}" class="chat-media-preview">`;
-            else if (type === 'video') innerHTML += `<video controls src="${content}" class="chat-media-preview"></video>`;
-            else if (type === 'audio') innerHTML += `<audio controls src="${content}" style="width: 100%; max-width: 180px; margin-top: 4px;"></audio>`;
-            else if (type === 'document') innerHTML += `<div style="background: #f4f8fb; padding: 6px; border-radius: 4px; border: 1px solid #b3d1ff; margin-top: 4px; font-size: 0.75rem;">📄 <b>Document:</b> <a href="${content}" download="${metaName}" style="color: #0047ab; text-decoration: underline;">${metaName}</a></div>`;
-
-            bubble.innerHTML = innerHTML;
-            chatBox.appendChild(bubble);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        async function createNewPost() {
-            if (!currentUser.isVerified) {
-                alert("You cannot post content until verified.");
-                return;
-            }
-
-            let inputField = document.getElementById('postInput');
-            let postType = document.getElementById('postTypeSelect').value;
-            let fileInput = document.getElementById('fileInput');
-            let postText = inputField.value.trim();
-
-            if (postType === 'video' && postText === "") {
-                alert("Please add a description for your video so family members know what it is about before viewing it!");
-                return;
-            }
-
-            if (postText === "" && fileInput.files.length === 0) {
-                alert("Please write something or select a file to post!");
-                return;
-            }
-
-            let mediaUrl = "";
-            if (fileInput.files && fileInput.files[0]) {
-                mediaUrl = URL.createObjectURL(fileInput.files[0]);
-            }
-
-            const { error } = await _supabase
-                .from('posts')
-                .insert([{ 
-                    author_name: currentUser.name, 
-                    content: postText, 
-                    post_type: postType, 
-                    media_url: mediaUrl 
-                }]);
-
-            if (error) {
-                alert("Error saving post to Supabase: " + error.message);
-                return;
-            }
-
-            let now = new Date();
-            let dateStr = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
-            let timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
-            let container = document.getElementById('postsContainer');
-            let newPostCard = document.createElement('div');
-            newPostCard.className = 'post-card';
-            
-            let searchKeywords = (postText + " " + postType).toLowerCase();
-            newPostCard.setAttribute('data-post', searchKeywords);
-
-            let avatarHTML = currentUser.avatar !== "" 
-                ? `<img src="${currentUser.avatar}" class="post-avatar">` 
-                : `<div class="post-avatar" style="background:#0047ab; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.8rem;">${currentUser.name.charAt(0).toUpperCase()}</div>`;
-
-            let innerHtmlContent = `
-                <div class="post-header-row">
-                    ${avatarHTML}
-                    <div class="post-info">
-                        <span>${currentUser.name} <span class="verified-badge">✔</span></span>
-                        <span class="post-time">${dateStr} at ${timeStr}</span>
-                    </div>
-                </div>
-            `;
-
-            if (postText !== "") {
-                let labelPrefix = (postType === 'video') ? '🎥 <b>Video Description:</b> ' : '';
-                innerHtmlContent += `<div class="post-text-content">${labelPrefix}${postText}</div>`;
-            }
-
-            if (mediaUrl !== "") {
-                innerHtmlContent += `<div class="media-display-box">`;
-                if (postType === 'video') {
-                    innerHtmlContent += `<video controls src="${mediaUrl}"></video>`;
-                    newPostCard.setAttribute('data-type', 'video');
-                } else {
-                    innerHtmlContent += `<img src="${mediaUrl}" alt="Photo">`;
-                    newPostCard.setAttribute('data-type', 'photo');
-                }
-                innerHtmlContent += `</div>`;
-            } else {
-                newPostCard.setAttribute('data-type', 'text');
-            }
-
-            innerHtmlContent += `
-                <div class="post-actions">
-                    <button onclick="toggleComments(this)">Comment (<span class="comment-count">0</span>)</button>
-                    <button onclick="likePost(this)">likes (<span class="like-count">0</span>)</button>
-                    <button onclick="toggleShareMenu(this)">share</button>
-                    <button onclick="downloadMedia(this)">Download</button>
-                </div>
-                <div class="share-menu">
-                    <a href="#" onclick="shareToPlatform(event, 'whatsapp', this)">💬 WhatsApp</a>
-                    <a href="#" onclick="shareToPlatform(event, 'twitter', this)">🐦 X (Twitter)</a>
-                    <a href="#" onclick="shareToPlatform(event, 'instagram', this)">📸 Instagram</a>
-                    <button onclick="copyLink(this)">🔗 Copy Link</button>
-                </div>
-                <div class="comments-section">
-                    <div class="comments-list"></div>
-                    <div class="comment-input-area">
-                        <input type="text" placeholder="Write a comment..." class="comment-text-input">
-                        <button onclick="addComment(this)">Send</button>
-                    </div>
-                </div>
-            `;
-
-            newPostCard.innerHTML = innerHtmlContent;
-            container.insertBefore(newPostCard, container.firstChild);
-            inputField.value = "";
-            fileInput.value = "";
-            toggleFileSelector();
-            alert("Post published and saved to Supabase successfully!");
-        }
-
-        function renderVideosGallery() {
-            let container = document.getElementById('videosContainer');
-            container.innerHTML = "";
-            let posts = document.querySelectorAll('#postsContainer .post-card');
-            let count = 0;
-            posts.forEach(p => {
-                if (p.getAttribute('data-type') === 'video' || p.querySelector('video')) {
-                    container.appendChild(p.cloneNode(true));
-                    count++;
-                }
-            });
-            if (count === 0) container.innerHTML = `<p style="font-size:0.85rem; color:#555; background:#f4f8fb; padding:10px; border-radius:6px; border:1px solid #b3d1ff;">No video posts found yet.</p>`;
-        }
-
-        function renderPhotosGallery() {
-            let container = document.getElementById('photosContainer');
-            container.innerHTML = "";
-            let posts = document.querySelectorAll('#postsContainer .post-card');
-            let count = 0;
-            posts.forEach(p => {
-                if (p.getAttribute('data-type') === 'photo' || p.querySelector('img')) {
-                    container.appendChild(p.cloneNode(true));
-                    count++;
-                }
-            });
-            if (count === 0) container.innerHTML = `<p style="font-size:0.85rem; color:#555; background:#f4f8fb; padding:10px; border-radius:6px; border:1px solid #b3d1ff;">No photo posts found yet.</p>`;
-        }
-
-        function renderStoriesGallery() {
-            let container = document.getElementById('storiesContainer');
-            container.innerHTML = "";
-            let posts = document.querySelectorAll('#postsContainer .post-card');
-            let count = 0;
-            posts.forEach(p => {
-                if (p.getAttribute('data-type') === 'text' || (!p.querySelector('img') && !p.querySelector('video'))) {
-                    container.appendChild(p.cloneNode(true));
-                    count++;
-                }
-            });
-            if (count === 0) container.innerHTML = `<p style="font-size:0.85rem; color:#555; background:#f4f8fb; padding:10px; border-radius:6px; border:1px solid #b3d1ff;">No stories posted yet.</p>`;
-        }
-
-        function filterPosts() {
-            let query = document.getElementById('searchInput').value.toLowerCase().trim();
-            document.querySelectorAll('#postsContainer .post-card').forEach(p => {
-                let text = p.getAttribute('data-post') || "";
-                let hasVideo = p.querySelector('video') !== null;
-                let hasPhoto = p.querySelector('img') !== null;
-                let postType = p.getAttribute('data-type') || "";
-
-                let matchesQuery = text.includes(query) || 
-                                   (query.includes('video') && (hasVideo || postType === 'video')) ||
-                                   (query.includes('photo') && (hasPhoto || postType === 'photo')) ||
-                                   (query.includes('story') && postType === 'text');
-
-                p.style.display = matchesQuery ? "block" : "none";
-            });
-        }
-
-        function updateProfilePhoto() {
-            let fileInput = document.getElementById('updateAvatarInput');
-            if (fileInput.files && fileInput.files[0]) {
-                currentUser.avatar = URL.createObjectURL(fileInput.files[0]);
-                let headerAvatar = document.getElementById('headerAvatarImg');
-                headerAvatar.src = currentUser.avatar;
-                headerAvatar.style.display = 'block';
-                alert("Profile photo updated successfully!");
-                fileInput.value = "";
-            } else {
-                alert("Please select an image file first.");
-            }
-        }
-
-        function changePassword() {
-            let currentInput = document.getElementById('currentPasswordInput').value;
-            let newInput = document.getElementById('newPasswordInput').value;
-            if (currentInput !== currentUser.password) {
-                alert("Current password is incorrect!");
-                return;
-            }
-            currentUser.password = newInput;
-            alert("Password updated successfully!");
-            document.getElementById('currentPasswordInput').value = "";
-            document.getElementById('newPasswordInput').value = "";
-        }
-
-        function logoutUser() {
-            if (confirm("Are you sure you want to log out?")) {
-                currentUser = { name: "Member", phone: "", father: "", mother: "", dob: "", sec: "", password: "", avatar: "", isVerified: false };
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('authGateway').style.display = 'flex';
-                document.getElementById('pendingLockOverlay').style.display = 'none';
-                switchTab('feed');
-            }
-        }
-
-        function openHistoryModal() {
-            document.getElementById('historyModal').style.display = 'flex';
-            lockAdmin();
-        }
-
-        function closeHistoryModal() {
-            document.getElementById('historyModal').style.display = 'none';
-        }
-
-        function verifyAdmin() {
-            let passwordInput = document.getElementById('adminPasswordInput');
-            if (passwordInput.value === ADMIN_PASSCODE) {
-                document.getElementById('adminLoginSection').style.display = 'none';
-                document.getElementById('historyEditForm').style.display = 'block';
-                document.getElementById('closeOnlySection').style.display = 'none';
-                passwordInput.value = "";
-                renderAdminPendingList();
-            } else {
-                alert("Incorrect admin passcode!");
-                passwordInput.value = "";
-            }
-        }
-
-        function lockAdmin() {
-            document.getElementById('adminLoginSection').style.display = 'block';
-            document.getElementById('historyEditForm').style.display = 'none';
-            document.getElementById('closeOnlySection').style.display = 'block';
-            document.getElementById('adminPasswordInput').value = "";
-        }
-
-        function renderAdminPendingList() {
-            let list = document.getElementById('adminPendingList');
-            list.innerHTML = "";
-            let unverifiedUsers = registeredUsersDatabase.filter(u => !u.isVerified);
-            if (unverifiedUsers.length > 0) {
-                unverifiedUsers.forEach((u, index) => {
-                    list.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #f4f8fb; padding: 6px 8px; border-radius: 4px; border: 1px solid #b3d1ff; font-size: 0.75rem;"><span><b>${u.name}</b> (${u.phone})</span> <button onclick="approveUser('${u.phone}')" style="background: green; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer;">Verify</button></div>`;
-                });
-            } else {
-                list.innerHTML = `<p style="font-size: 0.75rem; color: #555;">No pending registrations.</p>`;
-            }
-        }
-
-        function approveUser(phoneNum) {
-            let targetUser = registeredUsersDatabase.find(u => u.phone === phoneNum);
-            if (targetUser) {
-                targetUser.isVerified = true;
-                if (currentUser.phone === phoneNum) {
-                    currentUser.isVerified = true;
-                    updateVerificationUI();
-                }
-                alert(`${targetUser.name} has been verified successfully!`);
-                renderAdminPendingList();
-            }
-        }
-
-        function addHistoryRecord() {
-            let title = document.getElementById('historyTitleInput').value.trim();
-            let desc = document.getElementById('historyDescInput').value.trim();
-            if (title === "" || desc === "") return;
-
-            let historyList = document.getElementById('historyRecordsList');
-            let newEntry = document.createElement('div');
-            newEntry.style.cssText = "background: #f4f8fb; padding: 8px; border-radius: 4px; border: 1px solid #b3d1ff;";
-            newEntry.innerHTML = `<b>${title}:</b> ${desc}`;
-            historyList.appendChild(newEntry);
-
-            document.getElementById('historyTitleInput').value = "";
-            document.getElementById('historyDescInput').value = "";
-            alert("History record added successfully!");
-        }
-    </script>
+  </section>
+
+  <section id="adminTabPanel" class="hidden">
+    <div class="panel"><h2>Admin: pending members</h2><p class="muted">Only an administrator can approve new registrations.</p><button class="secondary" onclick="loadPending()">Refresh list</button><div id="pendingList"></div></div>
+  </section>
+</section>
+</main>
+<footer>Nabwiso Family Portal · Family unity</footer>
+</div>
+
+<script>
+/*
+  Paste your Supabase project URL and publishable/anon key below.
+  Never put a service_role/secret key in browser code.
+*/
+const SUPABASE_URL = 'https://dltwgxieaonbnhmsvptv.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0LjvAXbDh9z054JnElkD6Q_ZPjjkGGd';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const BUCKET = 'family-media';
+let currentUser = null;
+let currentProfile = null;
+let pendingPhone = null;
+
+function el(id){ return document.getElementById(id); }
+function showMessage(id, message, type='status'){
+  const node=el(id); node.textContent=message; node.className='status '+(type==='error'?'error':type==='success'?'success':''); node.classList.remove('hidden');
+}
+function hideMessage(id){el(id).classList.add('hidden');}
+function escapeHtml(value=''){
+  return String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function friendlyError(error){
+  const msg=error?.message || 'An unexpected error occurred.';
+  if(/row-level security/i.test(msg)) return msg+' Check that the SQL setup and RLS policies have been applied.';
+  if(/Invalid login credentials/i.test(msg)) return 'Phone number or password is incorrect.';
+  if(/User already registered/i.test(msg)) return 'This phone number already has an account. Please log in.';
+  return msg;
+}
+async function getProfile(){
+  if(!currentUser) return null;
+  const {data,error}=await supabaseClient.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(error) throw error;
+  currentProfile=data; return data;
+}
+function setNotice(text,type='status'){showMessage('notice',text,type);}
+function requireVerified(){
+  if(!currentProfile?.is_verified){setNotice('Your registration is waiting for administrator approval. You can update your profile, but posting and chat are locked.','error');return false;}
+  return true;
+}
+
+async function registerUser(){
+  hideMessage('authMessage');
+  const name=el('regName').value.trim(), phone=el('regPhone').value.trim();
+  const password=el('regPassword').value, father=el('regFather').value.trim();
+  const mother=el('regMother').value.trim(), dob=el('regDob').value, sec=el('regSec').value;
+  if(!name||!phone||!password){showMessage('authMessage','Please enter your name, phone number and password.','error');return;}
+  if(password.length<8){showMessage('authMessage','Use a password with at least 8 characters.','error');return;}
+  if(!/^\+[1-9]\d{7,14}$/.test(phone)){showMessage('authMessage','Enter the phone number in international format, for example +256700000000.','error');return;}
+  const btn=el('registerBtn');btn.disabled=true;btn.textContent='Creating account...';
+  try{
+    const {data,error}=await supabaseClient.auth.signUp({phone,password,options:{data:{name}}});
+    if(error) throw error;
+    if(data.session){
+      currentUser=data.user; await getProfile();
+      await saveProfileFields({name,father,mother,dob,sec});
+      await enterApp();
+      setNotice('Your account has been created. It will remain pending until an administrator approves it.','success');
+    }else{
+      pendingPhone=phone;
+      el('otpPanel').classList.remove('hidden');
+      showMessage('authMessage','Supabase sent a verification code if phone confirmation is enabled. Verify your number to continue.','success');
+    }
+  }catch(error){showMessage('authMessage',friendlyError(error),'error');}
+  finally{btn.disabled=false;btn.textContent='Create account';}
+}
+async function verifyPhone(){
+  const token=el('otpCode').value.trim();
+  if(!pendingPhone||!token){showMessage('authMessage','Enter the SMS verification code.','error');return;}
+  try{
+    const {data,error}=await supabaseClient.auth.verifyOtp({phone:pendingPhone,token,type:'sms'});
+    if(error) throw error;
+    currentUser=data.user; await getProfile();
+    await saveProfileFields({
+      name:el('regName').value.trim(),father:el('regFather').value.trim(),
+      mother:el('regMother').value.trim(),dob:el('regDob').value,sec:el('regSec').value
+    });
+    el('otpPanel').classList.add('hidden');pendingPhone=null;await enterApp();
+    setNotice('Phone verified. Your registration is waiting for administrator approval.','success');
+  }catch(error){showMessage('authMessage',friendlyError(error),'error');}
+}
+async function loginUser(){
+  hideMessage('authMessage');
+  const phone=el('loginPhone').value.trim(),password=el('loginPassword').value;
+  if(!phone||!password){showMessage('authMessage','Enter your phone number and password.','error');return;}
+  try{
+    const {data,error}=await supabaseClient.auth.signInWithPassword({phone,password});
+    if(error) throw error;
+    currentUser=data.user;await getProfile();await enterApp();
+  }catch(error){showMessage('authMessage',friendlyError(error),'error');}
+}
+async function enterApp(){
+  el('authView').classList.add('hidden');el('appView').classList.remove('hidden');
+  el('memberLabel').textContent=currentProfile?.name||'Member';
+  el('accountSummary').textContent=(currentProfile?.name||'Member')+' · '+(currentProfile?.is_verified?'Verified member':'Pending approval');
+  el('adminTab').classList.toggle('hidden',!currentProfile?.is_admin);
+  fillProfileForm();
+  if(!currentProfile?.is_verified)setNotice('Your account is pending administrator approval. Your profile is available, but family posts and chat are locked.','error');
+  else{hideMessage('notice');await loadPosts();}
+}
+function fillProfileForm(){
+  el('profileName').value=currentProfile?.name||'';el('profileFather').value=currentProfile?.father||'';
+  el('profileMother').value=currentProfile?.mother||'';el('profileDob').value=currentProfile?.dob||'';
+  el('profileSec').value=currentProfile?.sec||'Male';
+}
+async function saveProfileFields(fields){
+  const {error}=await supabaseClient.from('profiles').update(fields).eq('id',currentUser.id);
+  if(error) throw error;await getProfile();
+}
+async function saveProfile(){
+  try{
+    const fields={name:el('profileName').value.trim(),father:el('profileFather').value.trim(),mother:el('profileMother').value.trim(),dob:el('profileDob').value||null,sec:el('profileSec').value};
+    const file=el('profilePhoto').files[0];
+    if(file) fields.avatar_path=await uploadFile(file,'avatars');
+    await saveProfileFields(fields);await enterApp();setNotice('Profile updated successfully.','success');
+  }catch(error){setNotice(friendlyError(error),'error');}
+}
+async function uploadFile(file,folder){
+  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path=`${folder}/${currentUser.id}/${Date.now()}-${safeName}`;
+  const {error}=await supabaseClient.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type||'application/octet-stream'});
+  if(error) throw error;return path;
+}
+async function signedMediaUrl(path){
+  if(!path)return null;
+  const {data,error}=await supabaseClient.storage.from(BUCKET).createSignedUrl(path,3600);
+  if(error){console.warn(error);return null;}return data.signedUrl;
+}
+async function createPost(){
+  if(!requireVerified())return;
+  const content=el('postText').value.trim(),type=el('postType').value,file=el('postFile').files[0];
+  if(!content&&!file){setNotice('Write a message or choose a media file first.','error');return;}
+  if(type==='photo'&&file&&!file.type.startsWith('image/')){setNotice('Choose an image for a photo post.','error');return;}
+  if(type==='video'&&file&&!file.type.startsWith('video/')){setNotice('Choose a video for a video post.','error');return;}
+  try{
+    const media_path=file?await uploadFile(file,'posts'):null;
+    const {error}=await supabaseClient.from('posts').insert({user_id:currentUser.id,author_name:currentProfile.name,content,post_type:type,media_path});
+    if(error)throw error;
+    el('postText').value='';el('postFile').value='';await loadPosts();setNotice('Your post has been published.','success');
+  }catch(error){setNotice(friendlyError(error),'error');}
+}
+async function loadPosts(){
+  if(!currentProfile?.is_verified)return;
+  const box=el('postsList');box.textContent='Loading posts...';
+  const {data,error}=await supabaseClient.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error){box.textContent=friendlyError(error);return;}
+  box.innerHTML='';
+  if(!data.length){box.innerHTML='<p class="muted">No family posts yet. Be the first to share something.</p>';return;}
+  for(const post of data){
+    const card=document.createElement('article');card.className='post';
+    let media='';
+    if(post.media_path){
+      const url=await signedMediaUrl(post.media_path);
+      if(url) media=post.post_type==='video'?`<video class="post-media" controls src="${url}"></video>`:`<img class="post-media" src="${url}" alt="Family post media">`;
+    }
+    card.innerHTML=`<div class="post-head"><div class="avatar"></div><div><b>${escapeHtml(post.author_name||'Family member')}</b><small class="time">${new Date(post.created_at).toLocaleString()}</small></div></div><div>${escapeHtml(post.content||'')}</div>${media}`;
+    box.appendChild(card);
+  }
+}
+async function sendMessage(){
+  if(!requireVerified())return;
+  const content=el('messageText').value.trim(),file=el('messageFile').files[0];
+  if(!content&&!file)return;
+  try{
+    const media_path=file?await uploadFile(file,'messages'):null;
+    const {error}=await supabaseClient.from('messages').insert({sender_id:currentUser.id,sender_name:currentProfile.name,recipient_name:'Everyone',message_content:content,media_path});
+    if(error)throw error;
+    el('messageText').value='';el('messageFile').value='';await loadMessages();
+  }catch(error){setNotice(friendlyError(error),'error');}
+}
+async function loadMessages(){
+  if(!requireVerified())return;
+  const box=el('messagesList');box.textContent='Loading messages...';
+  const {data,error}=await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(100);
+  if(error){box.textContent=friendlyError(error);return;}
+  box.innerHTML='';
+  for(const msg of data){
+    const div=document.createElement('div');div.className='message'+(msg.sender_id===currentUser.id?' mine':'');
+    let media='';
+    if(msg.media_path){const url=await signedMediaUrl(msg.media_path);if(url)media=`<p><a href="${url}" target="_blank" rel="noopener">Open attachment</a></p>`;}
+    div.innerHTML=`<b>${escapeHtml(msg.sender_name||'Member')}</b><div>${escapeHtml(msg.message_content||'')}</div>${media}<small class="time">${new Date(msg.created_at).toLocaleString()}</small>`;
+    box.appendChild(div);
+  }
+  box.scrollTop=box.scrollHeight;
+}
+async function loadPending(){
+  if(!currentProfile?.is_admin)return;
+  const box=el('pendingList');box.textContent='Loading...';
+  const {data,error}=await supabaseClient.from('profiles').select('id,name,phone,created_at').eq('is_verified',false).order('created_at');
+  if(error){box.textContent=friendlyError(error);return;}
+  box.innerHTML='';
+  if(!data.length){box.textContent='No pending registrations.';return;}
+  data.forEach(member=>{
+    const row=document.createElement('div');row.className='member';
+    row.innerHTML=`<b>${escapeHtml(member.name||'New member')}</b><div class="muted">${escapeHtml(member.phone||'')}</div><button>Approve member</button>`;
+    row.querySelector('button').onclick=()=>approveMember(member.id,member.name);
+    box.appendChild(row);
+  });
+}
+async function approveMember(id,name){
+  if(!currentProfile?.is_admin)return;
+  if(!confirm(`Approve ${name||'this member'}?`))return;
+  const {error}=await supabaseClient.rpc('approve_family_member',{member_id:id});
+  if(error){setNotice(friendlyError(error),'error');return;}
+  setNotice('Member approved.','success');await loadPending();
+}
+function showTab(tab){
+  ['feed','chat','profile','admin'].forEach(name=>el(name==='admin'?'adminTabPanel':name+'Tab').classList.toggle('hidden',name!==tab));
+  if(tab==='feed')loadPosts();if(tab==='chat')loadMessages();if(tab==='admin')loadPending();
+}
+async function logoutUser(){
+  await supabaseClient.auth.signOut();currentUser=null;currentProfile=null;
+  el('appView').classList.add('hidden');el('authView').classList.remove('hidden');el('memberLabel').textContent='Guest';
+}
+async function restoreSession(){
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session)return;
+  try{currentUser=session.user;await getProfile();await enterApp();}
+  catch(error){console.error(error);await supabaseClient.auth.signOut();}
+}
+supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+  if(event==='SIGNED_OUT'){currentUser=null;currentProfile=null;}
+});
+restoreSession();
+</script>
 </body>
 </html>
